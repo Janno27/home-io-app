@@ -20,7 +20,7 @@ export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenInco
           {currentPage === 'home' ? (
             <WidgetContainer className="flex items-center space-x-4">
               <WeatherWidget />
-              <StockWidget />
+              <StockWidget navigateTo={navigateTo} />
             </WidgetContainer>
           ) : (
             <WidgetContainer>

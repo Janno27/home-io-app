@@ -34,3 +34,9 @@ dist-ssr
 # Supabase
 .branches
 .temp
+
+# Bolt
+.Bolt
+
+# cursor
+.cursor

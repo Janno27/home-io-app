@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Confirmation d'email - Home.io</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 40px 20px;
+            min-height: 100vh;
+        }
+        
+        .container {
+            max-width: 600px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 40px 32px;
+            text-align: center;
+            color: white;
+        }
+        
+        .logo {
+            font-size: 32px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
+        }
+        
+        .subtitle {
+            font-size: 16px;
+            opacity: 0.9;
+            margin: 0;
+        }
+        
+        .content {
+            padding: 40px 32px;
+        }
+        
+        .icon {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            border-radius: 50%;
+            margin: 0 auto 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+        }
+        
+        h1 {
+            color: #1f2937;
+            font-size: 24px;
+            font-weight: 700;
+            text-align: center;
+            margin: 0 0 16px 0;
+        }
+        
+        .intro {
+            color: #6b7280;
+            font-size: 16px;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .cta-button {
+            display: block;
+            width: 280px;
+            margin: 32px auto;
+            padding: 16px 24px;
+            background: linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            text-align: center;
+            transition: transform 0.2s ease;
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        
+        .cta-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.5);
+        }
+        
+        .steps {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 24px 0;
+        }
+        
+        .steps h3 {
+            color: #1e40af;
+            font-size: 16px;
+            font-weight: 600;
+            margin: 0 0 16px 0;
+            display: flex;
+            align-items: center;
+        }
+        
+        .steps ol {
+            margin: 0;
+            padding-left: 20px;
+            color: #1e40af;
+        }
+        
+        .steps li {
+            margin-bottom: 8px;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .footer {
+            background: #f8fafc;
+            padding: 24px 32px;
+            text-align: center;
+            color: #6b7280;
+            font-size: 14px;
+            border-top: 1px solid #e2e8f0;
+        }
+        
+        .footer p {
+            margin: 8px 0;
+        }
+        
+        .security-note {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+            font-size: 14px;
+            color: #92400e;
+        }
+        
+        @media (max-width: 600px) {
+            body {
+                padding: 20px 10px;
+            }
+            
+            .content, .header, .footer {
+                padding: 24px 20px;
+            }
+            
+            .cta-button {
+                width: 100%;
+                margin: 24px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">Home.io</div>
+            <p class="subtitle">Votre espace personnel de navigation</p>
+        </div>
+        
+        <!-- Content -->
+        <div class="content">
+            <div class="icon">📧</div>
+            
+            <h1>Confirmez votre adresse email</h1>
+            
+            <p class="intro">
+                Bienvenue sur Home.io ! Pour finaliser la création de votre compte, 
+                veuillez confirmer votre adresse email en cliquant sur le bouton ci-dessous.
+            </p>
+            
+            <a href="{{ .ConfirmationURL }}" class="cta-button">
+                ✅ Confirmer mon email
+            </a>
+            
+            <div class="steps">
+                <h3>🚀 Prochaines étapes :</h3>
+                <ol>
+                    <li>Cliquez sur le bouton de confirmation</li>
+                    <li>Vous serez redirigé vers Home.io</li>
+                    <li>Votre compte sera automatiquement activé</li>
+                    <li>Commencez à utiliser toutes les fonctionnalités</li>
+                </ol>
+            </div>
+            
+            <div class="security-note">
+                <strong>🔒 Note de sécurité :</strong> Ce lien expire dans 24 heures. 
+                Si vous n'avez pas demandé cette inscription, ignorez cet email.
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            <p><strong>Home.io</strong> - Votre dashboard personnel</p>
+            <p>Si vous avez des questions, contactez notre équipe support.</p>
+            <p style="font-size: 12px; color: #9ca3af; margin-top: 16px;">
+                Cet email a été envoyé à {{ .Email }}
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
+<!-- 
+Template pour RESET PASSWORD :
+Remplacez {{ .ConfirmationURL }} par {{ .ResetPasswordURL }}
+Changez le titre par "Réinitialisez votre mot de passe"
+Changez l'icône par 🔑
+Ajustez le texte accordingly
+-->
+
+<!-- 
+Template pour MAGIC LINK :
+Remplacez {{ .ConfirmationURL }} par {{ .MagicLinkURL }}
+Changez le titre par "Connexion sécurisée"
+Changez l'icône par ✨
+Texte : "Cliquez sur le lien ci-dessous pour vous connecter instantanément"
+--> 
