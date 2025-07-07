@@ -49,7 +49,7 @@ export function TransactionsTable({
 
   // Gérer les clics en dehors du menu
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (_event: MouseEvent) => {
       if (contextMenu.isOpen) {
         closeContextMenu();
       }
@@ -124,7 +124,7 @@ export function TransactionsTable({
     e.stopPropagation();
     
     // Calculer la position du menu en tenant compte des limites de l'écran
-    const rect = tableRef.current?.getBoundingClientRect();
+    tableRef.current?.getBoundingClientRect();
     const menuWidth = 140; // Largeur approximative du menu
     const menuHeight = 80; // Hauteur approximative du menu
     

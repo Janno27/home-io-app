@@ -1,4 +1,4 @@
-import { Cloud, Sun, AlertTriangle } from 'lucide-react';
+import { Sun, AlertTriangle } from 'lucide-react';
 
 export function WeatherWidget() {
   return (

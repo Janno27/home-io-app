@@ -45,9 +45,9 @@ export function MonthlyChart({ data, formatAmount, formatAmountDetailed, onOpenA
               tickFormatter={(value) => formatAmount(value)}
             />
             <Tooltip 
-              formatter={(value: number, name: string, props: any) => [
-                formatAmountDetailed(value), 
-                props.dataKey === 'revenus' ? 'Revenus' : 'Dépenses'
+                                            formatter={(value: number, _name: string, props: any) => [
+                  formatAmountDetailed(value), 
+                  props.dataKey === 'revenus' ? 'Revenus' : 'Dépenses'
               ]}
               labelStyle={{ color: '#6b7280', fontWeight: '500', fontSize: '12px' }}
               contentStyle={{ 

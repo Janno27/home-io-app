@@ -116,7 +116,7 @@ export function CategoryEvolutionChart({ selectedYear, type, formatAmount, forma
       };
 
       // Pour chaque catégorie sélectionnée
-      Array.from(selectedCategories).forEach((categoryId, index) => {
+      Array.from(selectedCategories).forEach((categoryId) => {
         const category = categories.find(cat => cat.id === categoryId);
         if (!category) return;
 

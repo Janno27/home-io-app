@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef } from 'react';
 import { Edit, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -13,7 +13,7 @@ interface TransactionContextMenuProps {
 export function TransactionContextMenu({
   isOpen,
   position,
-  onClose,
+  onClose: _onClose,
   onEdit,
   onDelete,
 }: TransactionContextMenuProps) {

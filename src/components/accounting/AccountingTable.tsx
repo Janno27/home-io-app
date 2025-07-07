@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Calendar, ChevronDown, ChevronRight as ChevronRightIcon, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Checkbox } from '@/components/ui/checkbox';
@@ -27,8 +27,8 @@ interface SubCategoryData {
 }
 
 export function AccountingTable() {
-  const { transactions, categories, subCategories, loading } = useAccounting();
-  const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
+  const { transactions, categories, subCategories } = useAccounting();
+  const [selectedYear] = useState(new Date().getFullYear());
   const [expandedCategories, setExpandedCategories] = useState<Set<string>>(new Set());
   const [expandedYears, setExpandedYears] = useState<Set<number>>(new Set([new Date().getFullYear()]));
   const [activeTab, setActiveTab] = useState<'expense' | 'income'>('expense');
@@ -230,7 +230,7 @@ export function AccountingTable() {
 
   // Fonction pour rendre la ligne Total
   const renderTotalRow = (type: 'expense' | 'income') => {
-    const categoryData = calculateCategoryData(type);
+    calculateCategoryData(type);
     // Couleurs cohérentes avec DistributionChart et MonthlyChart
     const colorClass = type === 'expense' ? 'text-violet-600' : 'text-indigo-600';
     const bgClass = type === 'expense' ? 'bg-violet-50/50' : 'bg-indigo-50/50';
@@ -333,7 +333,7 @@ export function AccountingTable() {
           {[selectedYear, selectedYear - 1, selectedYear - 2].map((year) => {
             if (!isYearExpanded(year)) return null;
             
-            return months.map((month, index) => (
+            return months.map((month) => (
               <div key={`${year}-${month}`} className="w-36 px-2 py-3 text-xs font-medium text-gray-500 uppercase tracking-wide border-r border-gray-200/40 text-center bg-gray-50">
                 {month.slice(0, 3)}
               </div>

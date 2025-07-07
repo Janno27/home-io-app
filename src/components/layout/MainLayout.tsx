@@ -94,7 +94,7 @@ export function MainLayout() {
 }
 
 // Composant séparé pour la page AccountingTable
-function AccountingTablePage({ navigateTo }: { navigateTo: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void }) {
+function AccountingTablePage({ navigateTo: _navigateTo }: { navigateTo: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void }) {
   const { loading } = useAccounting();
   
   return (

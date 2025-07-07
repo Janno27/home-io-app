@@ -1,12 +1,12 @@
 import { useState } from 'react';
-import { ChevronLeft, Edit3, Users, Plus } from 'lucide-react';
+import { ChevronLeft, Users, Plus } from 'lucide-react';
 import { toast } from 'sonner';
 import { useOrganizations } from '@/hooks/useOrganizations';
 import { useAuthContext } from '@/components/auth/AuthProvider';
 // import { OrganizationForm } from './OrganizationForm';
 // import { MemberForm } from './MemberForm';
 
-type FormType = 'organization' | 'member' | null;
+
 
 interface OrganizationsViewProps {
   onBack: () => void;
@@ -17,14 +17,13 @@ export function OrganizationsView({ onBack }: OrganizationsViewProps) {
   const { 
     currentOrganization, 
     members, 
-    updateOrganization, 
+    updateOrganization: _updateOrganization, 
     inviteMember, 
     removeMember, 
-    updateMemberRole 
+    updateMemberRole: _updateMemberRole 
   } = useOrganizations();
   
-  const [currentForm, setCurrentForm] = useState<FormType>(null);
-  const [editingOrganization, setEditingOrganization] = useState<any>(null);
+
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [inviteEmail, setInviteEmail] = useState('');
   const [inviteRole, setInviteRole] = useState<'admin' | 'member'>('member');
@@ -33,20 +32,7 @@ export function OrganizationsView({ onBack }: OrganizationsViewProps) {
   const currentUserMember = members.find(member => member.user_id === user?.id);
   const isAdminOrOwner = currentUserMember?.role === 'admin' || currentUserMember?.role === 'owner' || currentOrganization?.owner_id === user?.id;
 
-  const handleUpdateOrganization = async (name: string, description?: string) => {
-    if (!currentOrganization) return;
 
-    try {
-      const { error } = await updateOrganization(currentOrganization.id, { name, description });
-      if (error) throw error;
-      toast.success('Organisation modifiée avec succès');
-      setCurrentForm(null);
-      setEditingOrganization(null);
-    } catch (error) {
-      toast.error('Erreur lors de la modification de l\'organisation');
-      throw error;
-    }
-  };
 
   const handleInviteMember = async (email: string, role: 'admin' | 'member') => {
     if (!currentOrganization) return;
@@ -80,19 +66,11 @@ export function OrganizationsView({ onBack }: OrganizationsViewProps) {
     }
   };
 
-  const closeForm = () => {
-    setCurrentForm(null);
-    setEditingOrganization(null);
-  };
 
-  const openEditOrganizationForm = () => {
-    setEditingOrganization(currentOrganization);
-    setCurrentForm('organization');
-  };
 
-  const openInviteMemberForm = () => {
-    setCurrentForm('member');
-  };
+
+
+
 
   // TODO: Réactiver les formulaires après correction des imports
   // if (currentForm === 'organization') {
@@ -149,14 +127,7 @@ export function OrganizationsView({ onBack }: OrganizationsViewProps) {
                         <p className="text-xs text-gray-500 mt-1">{currentOrganization.description}</p>
                       )}
                     </div>
-                    {isAdminOrOwner && (
-                      <button
-                        onClick={openEditOrganizationForm}
-                        className="p-1 text-gray-400 hover:text-gray-600 transition-colors"
-                      >
-                        <Edit3 className="w-3 h-3" />
-                      </button>
-                    )}
+
                   </div>
                 </div>
               </div>

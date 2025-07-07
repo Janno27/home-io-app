@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useAccounting } from '@/hooks/useAccounting';
 import { BalanceCard } from '../BalanceCard';
 import { BalanceCardSkeleton } from '../BalanceCardSkeleton';
-import { MonthlyChart } from '../MonthlyChart';
+
 import { MonthlyChartSkeleton } from '../MonthlyChartSkeleton';
 import { DistributionChart } from './DistributionChart';
 import { DistributionChartSkeleton } from './DistributionChartSkeleton';

@@ -3,7 +3,7 @@ import { User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useAuthContext } from './AuthProvider';
-import { useOrganizations } from '@/hooks/useOrganizations';
+
 import { toast } from 'sonner';
 import { MainView, OrganizationsView, AccountingView } from './settings';
 

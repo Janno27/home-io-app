@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Button } from '@/components/ui/button';
+
 import { ChevronRight } from 'lucide-react';
 import { useAccounting } from '@/hooks/useAccounting';
 

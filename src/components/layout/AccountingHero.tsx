@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { BalanceCard } from '@/components/accounting/BalanceCard';
 import { MonthlyChart } from '@/components/accounting/MonthlyChart';
 import { TransactionsTable } from '@/components/accounting/TransactionsTable';
-import { AccountingTable } from '@/components/accounting/AccountingTable';
+
 import { BalanceCardSkeleton } from '@/components/accounting/BalanceCardSkeleton';
 import { MonthlyChartSkeleton } from '@/components/accounting/MonthlyChartSkeleton';
 import { TransactionsTableSkeleton } from '@/components/accounting/TransactionsTableSkeleton';
-import { AccountingTableSkeleton } from '@/components/accounting/AccountingTableSkeleton';
+
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
 

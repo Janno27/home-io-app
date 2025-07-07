@@ -20,14 +20,14 @@ export function OrganizationModal({ isOpen, onClose }: OrganizationModalProps) {
     organizations,
     currentOrganization,
     members,
-    loading,
+    loading: _loading,
     setCurrentOrganization,
     createOrganization,
     updateOrganization,
     deleteOrganization,
     inviteMember,
     removeMember,
-    updateMemberRole,
+    updateMemberRole: _updateMemberRole,
   } = useOrganizations();
 
   const [activeTab, setActiveTab] = useState<'overview' | 'members' | 'settings'>('overview');

@@ -1,4 +1,4 @@
-import { User, LogOut, Building, Calculator } from 'lucide-react';
+import { LogOut, Building, Calculator } from 'lucide-react';
 
 interface MainViewProps {
   userName: string;
