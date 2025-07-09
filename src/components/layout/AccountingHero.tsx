@@ -1,6 +1,7 @@
 import { useAuthContext } from '@/components/auth/AuthProvider';
 import { useAccounting } from '@/hooks/useAccounting';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { supabase } from '@/lib/supabase';
 import { BalanceCard } from '@/components/accounting/BalanceCard';
 import { MonthlyChart } from '@/components/accounting/MonthlyChart';
 import { TransactionsTable } from '@/components/accounting/TransactionsTable';
@@ -142,12 +143,30 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
     }).format(amount);
   };
 
-  const getUserName = () => {
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name.split(' ')[0];
-    }
-    return user?.email?.split('@')[0] || 'User';
-  };
+  // Récupérer le prénom depuis la table profiles
+  const [firstName, setFirstName] = useState<string>('User');
+
+  useEffect(() => {
+    const fetchProfileName = async () => {
+      if (!user) return;
+      const { data, error } = await supabase
+        .from('profiles')
+        .select('full_name')
+        .eq('id', user.id)
+        .single();
+
+      if (!error && data?.full_name) {
+        setFirstName(data.full_name.split(' ')[0]);
+      } else if (user.user_metadata?.full_name) {
+        // Fallback sur la méta de l'utilisateur
+        setFirstName(user.user_metadata.full_name.split(' ')[0]);
+      } else if (user.email) {
+        setFirstName(user.email.split('@')[0]);
+      }
+    };
+
+    fetchProfileName();
+  }, [user]);
 
   const handleRefresh = async () => {
     setIsRefreshing(true);
@@ -180,7 +199,7 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
             <div className="text-left space-y-2 relative">
               <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-light text-gray-700 flex items-center space-x-3">
-                  <span>Hello, {getUserName()}</span>
+                  <span>Hello, {firstName}</span>
                   <span className="text-3xl">👋</span>
                 </h1>
                 <div className="flex items-center space-x-2 absolute bottom-0 right-0">
@@ -203,7 +222,7 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
             </div>
 
             {/* Balance Card */}
-            {loading ? (
+            {loading && transactions.length === 0 ? (
               <BalanceCardSkeleton />
             ) : (
               <BalanceCard
@@ -227,7 +246,7 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
 
             {/* Graphique mensuel - Prend l'espace restant */}
             <div className="flex-1 min-h-0">
-              {loading ? (
+              {loading && transactions.length === 0 ? (
                 <MonthlyChartSkeleton />
               ) : (
                 <MonthlyChart
@@ -242,7 +261,7 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
 
           {/* Colonne de droite - 40% - Tableau des transactions */}
           <div className="lg:col-span-2 flex flex-col min-h-0">
-            {loading ? (
+            {loading && transactions.length === 0 ? (
               <div style={{ paddingTop: '1.5rem' }}>
                 <TransactionsTableSkeleton />
               </div>

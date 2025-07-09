@@ -118,8 +118,7 @@ export function EvolutionPage({ navigateTo }: EvolutionPageProps) {
         <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 h-full min-h-0">
           {/* Colonne principale - 60% */}
           <div className="lg:col-span-3 flex flex-col min-h-0 space-y-6">
-            {/* Balance Card */}
-            {loading ? (
+            {loading && transactions.length === 0 ? (
               <BalanceCardSkeleton />
             ) : (
               <BalanceCard
@@ -143,7 +142,7 @@ export function EvolutionPage({ navigateTo }: EvolutionPageProps) {
 
             {/* Graphique d'évolution des catégories - Prend l'espace restant */}
             <div className="flex-1 min-h-0">
-              {loading ? (
+              {loading && transactions.length === 0 ? (
                 <MonthlyChartSkeleton />
               ) : (
                 <CategoryEvolutionChart
