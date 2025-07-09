@@ -32,6 +32,7 @@ export interface Transaction {
   subcategory_id: string | null;
   user_id: string;
   organization_id: string;
+  is_personal: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -53,6 +54,7 @@ export interface CreateTransactionData {
   accounting_date: string;
   category_id: string;
   subcategory_id?: string;
+  is_personal?: boolean;
 }
 
 export interface UpdateTransactionData {
@@ -62,6 +64,7 @@ export interface UpdateTransactionData {
   accounting_date?: string;
   category_id?: string;
   subcategory_id?: string;
+  is_personal?: boolean;
 }
 
 export interface CreateRefundData {
@@ -84,6 +87,8 @@ export interface Refund {
   user_email?: string;
 }
 
+export type TransactionFilter = 'all' | 'common' | 'personal';
+
 export function useAccounting() {
   const { user } = useAuthContext();
   const { currentOrganization } = useOrganizations();
@@ -92,6 +97,11 @@ export function useAccounting() {
   const [transactions, setTransactions] = useState<TransactionWithDetails[]>([]);
   const [refunds, setRefunds] = useState<Refund[]>([]);
   const [loading, setLoading] = useState(true);
+  const [transactionFilter, setTransactionFilter] = useState<TransactionFilter>(() => {
+    // Récupérer le filtre depuis localStorage au démarrage
+    const savedFilter = localStorage.getItem('accounting-filter');
+    return (savedFilter as TransactionFilter) || 'all';
+  });
 
   // Charger les catégories
   const fetchCategories = async () => {
@@ -133,16 +143,18 @@ export function useAccounting() {
     }
   };
 
-  // Charger les transactions
-  const fetchTransactions = async () => {
-    if (!currentOrganization) return;
+  // Charger les transactions avec filtrage
+  const fetchTransactions = async (filter: TransactionFilter = 'all') => {
+    if (!currentOrganization || !user) return;
 
     try {
+      // Utiliser la fonction PostgreSQL que nous avons créée
       const { data, error } = await supabase
-        .from('transaction_with_refunds')
-        .select('*')
-        .eq('organization_id', currentOrganization.id)
-        .order('transaction_date', { ascending: false });
+        .rpc('get_organization_transactions', {
+          org_id: currentOrganization.id,
+          filter_type: filter,
+          current_user_id: user.id
+        });
 
       if (error) throw error;
       setTransactions(data || []);
@@ -192,6 +204,7 @@ export function useAccounting() {
         .from('transactions')
         .insert({
           ...transactionData,
+          is_personal: transactionData.is_personal || false,
           user_id: user.id,
           organization_id: currentOrganization.id,
         })
@@ -200,8 +213,8 @@ export function useAccounting() {
 
       if (error) throw error;
       
-      // Recharger seulement les transactions
-      await fetchTransactions();
+      // Recharger les transactions avec le filtre actuel
+      await fetchTransactions(transactionFilter);
       return { data, error: null };
     } catch (error) {
       return { data: null, error };
@@ -220,7 +233,7 @@ export function useAccounting() {
 
       if (error) throw error;
       
-      await fetchTransactions();
+      await fetchTransactions(transactionFilter);
       return { data, error: null };
     } catch (error) {
       return { data: null, error };
@@ -245,8 +258,8 @@ export function useAccounting() {
 
       if (error) throw error;
       
-      // Recharger seulement les transactions (qui inclut les remboursements via la vue)
-      await fetchTransactions();
+      // Recharger les transactions avec le filtre actuel
+      await fetchTransactions(transactionFilter);
       return { data, error: null };
     } catch (error) {
       return { data: null, error };
@@ -256,6 +269,44 @@ export function useAccounting() {
   // Obtenir les remboursements pour une transaction
   const getRefundsForTransaction = (transactionId: string) => {
     return refunds.filter(refund => refund.transaction_id === transactionId);
+  };
+
+  // Changer le filtre et recharger les transactions
+  const setFilter = async (filter: TransactionFilter) => {
+    setTransactionFilter(filter);
+    localStorage.setItem('accounting-filter', filter);
+    setLoading(true);
+    await fetchTransactions(filter);
+    setLoading(false);
+    // Propager l'événement aux autres composants utilisant le hook
+    window.dispatchEvent(new CustomEvent('accounting-filter-changed', { detail: filter }));
+  };
+
+  // Écouter les changements de filtre provenant d'autres instances
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const customEvent = e as CustomEvent<TransactionFilter>;
+      const newFilter = customEvent.detail;
+      if (newFilter && newFilter !== transactionFilter) {
+        setTransactionFilter(newFilter);
+        fetchTransactions(newFilter);
+      }
+    };
+    window.addEventListener('accounting-filter-changed', handler);
+    return () => window.removeEventListener('accounting-filter-changed', handler);
+  }, [transactionFilter, currentOrganization, user]);
+
+  // Recharger les données
+  const refetch = async () => {
+    if (!currentOrganization) return;
+    
+    setLoading(true);
+    await Promise.all([
+      fetchCategories(),
+      fetchSubCategories(),
+      fetchTransactions(transactionFilter),
+    ]);
+    setLoading(false);
   };
 
   // Créer une catégorie
@@ -353,7 +404,7 @@ export function useAccounting() {
 
       if (error) throw error;
       
-      await fetchTransactions();
+      await fetchTransactions(transactionFilter);
       return { error: null };
     } catch (error) {
       return { error };
@@ -367,7 +418,7 @@ export function useAccounting() {
       Promise.all([
         fetchCategories(),
         fetchSubCategories(),
-        fetchTransactions(),
+        fetchTransactions(transactionFilter),
       ]).finally(() => {
         setLoading(false);
       });
@@ -381,15 +432,28 @@ export function useAccounting() {
     if (transactions.length > 0) {
       fetchRefunds();
     }
-  }, [transactions.length]);
+  }, [transactions]);
 
-  // Filtrer les catégories par type
+  // Catégories filtrées
   const expenseCategories = categories.filter(cat => cat.type === 'expense');
   const incomeCategories = categories.filter(cat => cat.type === 'income');
 
-  // Obtenir les sous-catégories pour une catégorie donnée
+  // Obtenir les sous-catégories pour une catégorie
   const getSubCategoriesForCategory = (categoryId: string) => {
     return subCategories.filter(sub => sub.category_id === categoryId);
+  };
+
+  // Obtenir les statistiques du filtrage
+  const getFilterStats = () => {
+    const allTransactions = transactions;
+    const personalTransactions = allTransactions.filter(t => t.is_personal);
+    const commonTransactions = allTransactions.filter(t => !t.is_personal);
+    
+    return {
+      all: allTransactions.length,
+      personal: personalTransactions.length,
+      common: commonTransactions.length,
+    };
   };
 
   return {
@@ -398,6 +462,7 @@ export function useAccounting() {
     transactions,
     refunds,
     loading,
+    transactionFilter,
     expenseCategories,
     incomeCategories,
     getSubCategoriesForCategory,
@@ -410,15 +475,8 @@ export function useAccounting() {
     updateCategory,
     updateSubCategory,
     deleteTransaction,
-    refetch: () => {
-      if (currentOrganization) {
-        return Promise.all([
-          fetchCategories(),
-          fetchSubCategories(),
-          fetchTransactions(),
-        ]);
-      }
-      return Promise.resolve();
-    },
+    setFilter,
+    refetch,
+    getFilterStats,
   };
 }

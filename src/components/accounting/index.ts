@@ -7,6 +7,9 @@ export { TransactionModal } from './TransactionModal';
 export { EditTransactionDialog } from './EditTransactionDialog';
 export { DeleteTransactionDialog } from './DeleteTransactionDialog';
 export { TransactionContextMenu } from './TransactionContextMenu';
+export { UserDot } from './UserDot';
+export { TransactionFilter } from './TransactionFilter';
+export { TransactionFilterPopover } from './TransactionFilterPopover';
 
 // Skeletons
 export { BalanceCardSkeleton } from './BalanceCardSkeleton';

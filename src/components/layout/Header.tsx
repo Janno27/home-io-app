@@ -11,8 +11,11 @@ interface HeaderProps {
   navigateTo: (page: Page) => void;
   onOpenExpenseModal?: () => void;
   onOpenIncomeModal?: () => void;
+  onOpenQuickNotes?: () => void;
+  onOpenTimer?: () => void;
 }
-export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal }: HeaderProps) {
+
+export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer }: HeaderProps) {
   return (
     <header className="flex-shrink-0 w-full px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10 transition-all duration-200 ease-out">
       <div className="flex items-center justify-between">
@@ -23,7 +26,7 @@ export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenInco
               <StockWidget navigateTo={navigateTo} />
             </WidgetContainer>
           ) : (
-            <WidgetContainer>
+            <WidgetContainer className="flex items-center space-x-4">
               <Button
                 variant="ghost"
                 size="sm"
@@ -52,6 +55,8 @@ export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenInco
               navigateTo={navigateTo}
               onOpenExpenseModal={onOpenExpenseModal}
               onOpenIncomeModal={onOpenIncomeModal}
+              onOpenQuickNotes={onOpenQuickNotes}
+              onOpenTimer={onOpenTimer}
             />
           </WidgetContainer>
         </div>

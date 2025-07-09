@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
-import { X } from 'lucide-react';
+import { X, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Switch } from '@/components/ui/switch';
 import { useAccounting } from '@/hooks/useAccounting';
 import { toast } from 'sonner';
 import { DatePicker } from '@/components/ui/DatePicker';
@@ -25,6 +26,8 @@ export function TransactionModal({ isOpen, onClose, type }: TransactionModalProp
   } = useAccounting();
 
   const [loading, setLoading] = useState(false);
+  const [showOptions, setShowOptions] = useState(false);
+  const [isPersonal, setIsPersonal] = useState(false);
   const [formData, setFormData] = useState({
     amount: '',
     description: '',
@@ -49,6 +52,8 @@ export function TransactionModal({ isOpen, onClose, type }: TransactionModalProp
         category_id: '',
         subcategory_id: '',
       });
+      setIsPersonal(false);
+      setShowOptions(false);
     }
   }, [isOpen]);
 
@@ -70,12 +75,13 @@ export function TransactionModal({ isOpen, onClose, type }: TransactionModalProp
         accounting_date: formData.accounting_date,
         category_id: formData.category_id,
         subcategory_id: formData.subcategory_id || undefined,
+        is_personal: isPersonal,
       });
 
       if (error) {
         toast.error('Erreur lors de la création de la transaction');
       } else {
-        toast.success(`${type === 'expense' ? 'Dépense' : 'Revenu'} ajouté avec succès !`);
+        toast.success(`${type === 'expense' ? 'Dépense' : 'Revenu'} ${isPersonal ? 'personnelle' : 'commune'} ajouté avec succès !`);
         await refetch();
         onClose();
       }
@@ -98,9 +104,9 @@ export function TransactionModal({ isOpen, onClose, type }: TransactionModalProp
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl h-[80vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
           <h2 className="text-lg font-semibold text-gray-900">
             Ajouter {type === 'expense' ? 'une dépense' : 'un revenu'}
           </h2>
@@ -112,15 +118,17 @@ export function TransactionModal({ isOpen, onClose, type }: TransactionModalProp
           </button>
         </div>
 
-        {/* Description */}
-        <div className="px-6 pt-4">
-          <p className="text-sm text-gray-600 text-left">
-            Remplissez les informations ci-dessous pour ajouter une nouvelle transaction.
-          </p>
-        </div>
+        {/* Content - Scrollable */}
+        <div className="flex-1 overflow-y-auto">
+          {/* Description */}
+          <div className="px-6 pt-4">
+            <p className="text-sm text-gray-600 text-left">
+              Remplissez les informations ci-dessous pour ajouter une nouvelle transaction.
+            </p>
+          </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {/* Form */}
+          <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Catégorie */}
           <div className="space-y-2">
             <Label htmlFor="category" className="text-sm font-medium text-gray-900 text-left block">
@@ -216,19 +224,55 @@ export function TransactionModal({ isOpen, onClose, type }: TransactionModalProp
               onChange={(value) => handleInputChange('accounting_date', value)}
               required
             />
-            <Button
-              type="submit"
-              disabled={loading}
-              className="w-full h-10 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-colors text-sm"
-            >
-              {loading ? (
-                <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-              ) : (
-                'Enregistrer'
-              )}
-            </Button>
           </div>
+
+          {/* Options - Collapsible */}
+          <div className="border border-gray-100 rounded-lg">
+            <button
+              type="button"
+              onClick={() => setShowOptions(!showOptions)}
+              className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 transition-colors"
+            >
+              <span className="text-sm font-medium text-gray-700">Options</span>
+              <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showOptions ? 'rotate-180' : ''}`} />
+            </button>
+            
+            {showOptions && (
+              <div className="px-3 pb-3 space-y-3 border-t border-gray-100">
+                {/* Switch Transaction Personnelle */}
+                <div className="flex items-center justify-between">
+                  <div className="space-y-0.5">
+                    <Label htmlFor="is-personal" className="text-sm font-medium text-gray-900 text-left">
+                      Transaction personnelle
+                    </Label>
+                    <p className="text-xs text-gray-500 text-left">
+                      Cette transaction sera visible uniquement par vous
+                    </p>
+                  </div>
+                  <Switch
+                    id="is-personal"
+                    checked={isPersonal}
+                    onCheckedChange={setIsPersonal}
+                  />
+                </div>
+              </div>
+            )}
+          </div>
+
+          {/* Submit Button */}
+          <Button
+            type="submit"
+            disabled={loading}
+            className="w-full h-10 bg-gray-900 hover:bg-gray-800 text-white font-medium rounded-lg transition-colors text-sm"
+          >
+            {loading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+            ) : (
+              'Enregistrer'
+            )}
+          </Button>
         </form>
+        </div>
       </div>
     </div>
   );

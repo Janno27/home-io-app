@@ -5,6 +5,7 @@ import type { TransactionWithDetails } from '@/hooks/useAccounting';
 import { TransactionContextMenu } from './TransactionContextMenu';
 import { DeleteTransactionDialog } from './DeleteTransactionDialog';
 import { EditTransactionDialog } from './EditTransactionDialog';
+import { UserDot } from './UserDot';
 
 interface TransactionsTableProps {
   transactions: TransactionWithDetails[];
@@ -207,15 +208,26 @@ export function TransactionsTable({
                     {formatDate(transaction.accounting_date)}
                   </div>
                   <div className="px-3 py-2.5 border-r border-gray-200/30 flex items-center">
-                    <div className="min-w-0 flex-1 text-left">
-                      <div className="text-xs font-medium text-gray-800 truncate">
-                        {transaction.category_name}
-                      </div>
-                      {transaction.subcategory_name && (
-                        <div className="text-xs text-gray-500 truncate mt-0.5">
-                          {transaction.subcategory_name}
-                        </div>
+                    <div className="min-w-0 flex-1 text-left flex items-center space-x-2">
+                      {transaction.is_personal ? (
+                        <UserDot 
+                          userId={transaction.user_id}
+                          userName={transaction.user_name}
+                          size="sm"
+                        />
+                      ) : (
+                        <div className="w-2 h-2 rounded-full bg-gray-300 flex-shrink-0" />
                       )}
+                      <div className="min-w-0 flex-1">
+                        <div className="text-xs font-medium text-gray-800 truncate">
+                          {transaction.category_name}
+                        </div>
+                        {transaction.subcategory_name && (
+                          <div className="text-xs text-gray-500 truncate mt-0.5">
+                            {transaction.subcategory_name}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className={`px-3 py-2.5 text-xs font-medium text-right flex items-center justify-end ${

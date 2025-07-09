@@ -37,6 +37,7 @@ export function EditTransactionDialog({
   const [refundAmount, setRefundAmount] = useState('');
   const [createRefundMode, setCreateRefundMode] = useState(false);
   const [showDetails, setShowDetails] = useState(false);
+  const [isPersonal, setIsPersonal] = useState(false);
   
   const [formData, setFormData] = useState({
     amount: '',
@@ -60,6 +61,7 @@ export function EditTransactionDialog({
         category_id: transaction.category_id,
         subcategory_id: transaction.subcategory_id || '',
       });
+      setIsPersonal(transaction.is_personal);
       setShowRefundSection(transaction.category_type === 'expense');
       setRefundAmount('');
       setCreateRefundMode(false);
@@ -81,6 +83,7 @@ export function EditTransactionDialog({
         accounting_date: formData.accounting_date,
         category_id: formData.category_id,
         subcategory_id: formData.subcategory_id || undefined,
+        is_personal: isPersonal,
       });
 
       if (updateError) {
@@ -103,7 +106,7 @@ export function EditTransactionDialog({
         }
       }
 
-      toast.success('Transaction mise à jour avec succès');
+      toast.success(`Transaction ${isPersonal ? 'personnelle' : 'commune'} mise à jour avec succès`);
       await refetch();
       onClose();
     } catch (error) {
@@ -136,9 +139,9 @@ export function EditTransactionDialog({
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/50" onClick={onClose} />
       
-      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl max-h-[90vh] overflow-hidden">
+      <div className="relative w-full max-w-md bg-white rounded-2xl shadow-xl h-[80vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-100">
+        <div className="flex items-center justify-between p-6 border-b border-gray-100 flex-shrink-0">
           <div>
             <h2 className="text-lg font-semibold text-gray-900">
               Modifier la transaction
@@ -156,22 +159,33 @@ export function EditTransactionDialog({
         </div>
 
         {/* Content - Scrollable */}
-        <div className="max-h-[60vh] overflow-y-auto">
+        <div className="flex-1 overflow-y-auto">
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             {/* Transaction Summary */}
             {!showDetails && (
               <div className="bg-gray-50 rounded-lg p-4">
-                <div className="text-sm text-gray-600">
-                  Votre {transaction.category_type === 'expense' ? 'dépense' : 'revenu'} de{' '}
-                  <span className="font-semibold">{formatAmount(transaction.amount)}</span> liée à{' '}
-                  <span className="font-semibold">
-                    {transaction.subcategory_name || transaction.category_name}
-                  </span>
-                  {transaction.subcategory_name && (
-                    <>
-                      {' '}de la catégorie <span className="font-semibold">{transaction.category_name}</span>
-                    </>
-                  )}
+                <div className="text-sm text-gray-600 space-y-1">
+                  <div>
+                    Votre {transaction.category_type === 'expense' ? 'dépense' : 'revenu'} de{' '}
+                    <span className="font-semibold">{formatAmount(transaction.amount)}</span> liée à{' '}
+                    <span className="font-semibold">
+                      {transaction.subcategory_name || transaction.category_name}
+                    </span>
+                    {transaction.subcategory_name && (
+                      <>
+                        {' '}de la catégorie <span className="font-semibold">{transaction.category_name}</span>
+                      </>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      transaction.is_personal 
+                        ? 'bg-blue-100 text-blue-800' 
+                        : 'bg-green-100 text-green-800'
+                    }`}>
+                      {transaction.is_personal ? 'Transaction personnelle' : 'Transaction commune'}
+                    </span>
+                  </div>
                 </div>
               </div>
             )}
@@ -185,18 +199,18 @@ export function EditTransactionDialog({
             />
 
             {/* Informations détaillées - Collapsible */}
-            <div className="border border-gray-200 rounded-lg">
+            <div className="border border-gray-100 rounded-lg">
               <button
                 type="button"
                 onClick={() => setShowDetails(!showDetails)}
-                className="w-full flex items-center justify-between p-4 text-left hover:bg-gray-50 transition-colors"
+                className="w-full flex items-center justify-between px-3 py-2.5 text-left hover:bg-gray-50 transition-colors"
               >
                 <span className="text-sm font-medium text-gray-700">Informations détaillées</span>
                 <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform ${showDetails ? 'rotate-180' : ''}`} />
               </button>
               
               {showDetails && (
-                <div className="px-4 pb-4 space-y-4 border-t border-gray-200">
+                <div className="px-3 pb-3 space-y-3 border-t border-gray-100">
                   {/* Montant */}
                   <div className="space-y-2">
                     <Label htmlFor="amount" className="text-sm font-medium text-gray-900 text-left block">
@@ -271,6 +285,23 @@ export function EditTransactionDialog({
                       onChange={(e) => handleInputChange('description', e.target.value)}
                       className="border-gray-300 rounded-lg resize-none"
                       rows={3}
+                    />
+                  </div>
+
+                  {/* Switch Transaction Personnelle */}
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <div className="space-y-0.5">
+                      <Label htmlFor="is-personal" className="text-sm font-medium text-gray-900">
+                        Transaction personnelle
+                      </Label>
+                      <p className="text-xs text-gray-500 text-left">
+                        Cette transaction sera visible uniquement par vous
+                      </p>
+                    </div>
+                    <Switch
+                      id="is-personal"
+                      checked={isPersonal}
+                      onCheckedChange={setIsPersonal}
                     />
                   </div>
                 </div>

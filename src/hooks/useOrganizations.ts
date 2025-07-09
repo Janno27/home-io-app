@@ -75,20 +75,26 @@ export function useOrganizations() {
   // Charger les membres d'une organisation
   const fetchMembers = async (organizationId: string) => {
     try {
+      // Utiliser la fonction RPC qui fonctionne et contourne les problèmes de JOIN
       const { data, error } = await supabase
-        .from('organization_members')
-        .select(`
-          *,
-          profiles:user_id (
-            email,
-            full_name
-          )
-        `)
-        .eq('organization_id', organizationId)
-        .order('created_at', { ascending: true });
+        .rpc('get_organization_members', { org_id: organizationId });
 
       if (error) throw error;
-      setMembers(data || []);
+      
+      // Transformer les données pour correspondre au type OrganizationMember
+      const transformedMembers = (data || []).map((member: any) => ({
+        id: crypto.randomUUID(), // ID temporaire pour la compatibilité
+        organization_id: organizationId,
+        user_id: member.user_id,
+        role: member.role, // Maintenant récupéré de la base de données
+        created_at: new Date().toISOString(), // Valeur temporaire
+        profiles: {
+          email: member.email,
+          full_name: member.full_name,
+        }
+      }));
+      
+      setMembers(transformedMembers);
     } catch (error) {
       console.error('Erreur lors du chargement des membres:', error);
     }

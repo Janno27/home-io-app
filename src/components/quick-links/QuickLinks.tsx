@@ -14,7 +14,7 @@ export function QuickLinks() {
   ];
 
   return (
-    <div className="grid grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-4 max-w-2xl mx-auto">
+    <div className="grid grid-cols-5 gap-4 max-w-lg mx-auto">
       {links.map((link, index) => (
         <QuickLinkItem key={index} {...link} />
       ))}

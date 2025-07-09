@@ -31,6 +31,23 @@ export function OrganizationsView({ onBack }: OrganizationsViewProps) {
   // Vérifier si l'utilisateur est admin ou propriétaire
   const currentUserMember = members.find(member => member.user_id === user?.id);
   const isAdminOrOwner = currentUserMember?.role === 'admin' || currentUserMember?.role === 'owner' || currentOrganization?.owner_id === user?.id;
+  
+  // Compter le nombre d'admins et de propriétaires
+  const adminCount = members.filter(member => member.role === 'admin' || member.role === 'owner').length;
+
+  // Vérifier si un membre peut être supprimé
+  const canRemoveMember = (member: any) => {
+    // Seuls les admins/propriétaires peuvent supprimer
+    if (!isAdminOrOwner) return false;
+    
+    // Le propriétaire ne peut pas être supprimé
+    if (member.role === 'owner') return false;
+    
+    // Si c'est un admin et qu'il n'y a qu'un seul admin, il ne peut pas être supprimé
+    if (member.role === 'admin' && adminCount <= 1) return false;
+    
+    return true;
+  };
 
 
 
@@ -173,7 +190,7 @@ export function OrganizationsView({ onBack }: OrganizationsViewProps) {
                           {member.role === 'owner' ? 'Propriétaire' : 
                            member.role === 'admin' ? 'Admin' : 'Membre'}
                         </span>
-                        {member.role !== 'owner' && isAdminOrOwner && (
+                        {canRemoveMember(member) && (
                           <button
                             onClick={() => handleRemoveMember(member.id)}
                             className="text-xs text-red-600 hover:text-red-700 transition-colors"

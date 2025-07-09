@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { Music, List, Clock, Plus, User, Calculator, Minus, Plus as PlusIcon } from 'lucide-react';
+import { Music, List, Clock, Plus, User, Calculator, Minus, Plus as PlusIcon, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { AuthModal } from '@/components/auth/AuthModal';
+
 
 import { useAuthContext } from '@/components/auth/AuthProvider';
 import type { Page } from '@/hooks/useNavigation';
@@ -12,9 +13,11 @@ interface QuickActionsProps {
   navigateTo: (page: Page) => void;
   onOpenExpenseModal?: () => void;
   onOpenIncomeModal?: () => void;
+  onOpenQuickNotes?: () => void;
+  onOpenTimer?: () => void;
 }
 
-export function QuickActions({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal }: QuickActionsProps) {
+export function QuickActions({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer }: QuickActionsProps) {
   const { user } = useAuthContext();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -26,10 +29,22 @@ export function QuickActions({ currentPage, navigateTo, onOpenExpenseModal, onOp
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
               <Music className="w-4 h-4 text-gray-600" />
             </Button>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-              <List className="w-4 h-4 text-gray-600" />
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+              onClick={onOpenQuickNotes}
+              title="Notes"
+            >
+              <FileText className="w-4 h-4 text-gray-600" />
             </Button>
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0"
+                        onClick={onOpenTimer}
+          title="Timer"
+            >
               <Clock className="w-4 h-4 text-gray-600" />
             </Button>
             <Button variant="ghost" size="sm" className="h-8 w-8 p-0">

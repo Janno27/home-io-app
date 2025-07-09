@@ -11,6 +11,7 @@ import { TransactionsTableSkeleton } from '@/components/accounting/TransactionsT
 
 import { Button } from '@/components/ui/button';
 import { RefreshCw } from 'lucide-react';
+import { TransactionFilterPopover } from '@/components/accounting';
 
 interface AccountingHeroProps {
   onOpenExpenseModal?: () => void;
@@ -18,12 +19,16 @@ interface AccountingHeroProps {
   navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void;
 }
 
+
+
 export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigateTo }: AccountingHeroProps) {
   const { user } = useAuthContext();
   const { transactions, loading, refetch } = useAccounting();
   const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
   const [showComparison, setShowComparison] = useState(false);
   const [isRefreshing, setIsRefreshing] = useState(false);
+
+
 
   // Calculer les totaux pour l'année sélectionnée
   const yearTransactions = transactions.filter(transaction => 
@@ -155,6 +160,8 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
     }
   };
 
+
+
   const monthlyData = getMonthlyData();
 
   // Obtenir les dernières transactions (limitées à 50 pour l'affichage)
@@ -170,21 +177,25 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
           {/* Colonne principale - 60% */}
           <div className="lg:col-span-3 flex flex-col min-h-0 space-y-6">
             {/* Header Section */}
-            <div className="text-left space-y-2">
+            <div className="text-left space-y-2 relative">
               <div className="flex items-center justify-between">
                 <h1 className="text-4xl font-light text-gray-700 flex items-center space-x-3">
                   <span>Hello, {getUserName()}</span>
                   <span className="text-3xl">👋</span>
                 </h1>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleRefresh}
-                  disabled={isRefreshing}
-                  className="text-gray-400 hover:text-gray-600 hover:bg-gray-100/30 rounded-full p-1.5"
-                >
-                  <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
-                </Button>
+                <div className="flex items-center space-x-2 absolute bottom-0 right-0">
+                  {/* Bouton refresh */}
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleRefresh}
+                    disabled={isRefreshing}
+                    className="text-gray-400 hover:text-gray-600 hover:bg-gray-100/30 rounded-full p-1.5"
+                  >
+                    <RefreshCw className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+                  </Button>
+                  <TransactionFilterPopover />
+                </div>
               </div>
               <p className="text-lg text-gray-500">
                 Voici un aperçu de vos finances
@@ -236,7 +247,7 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
                 <TransactionsTableSkeleton />
               </div>
             ) : (
-                            <div style={{ paddingTop: '1.5rem' }}>
+              <div style={{ paddingTop: '1.5rem' }}>
                 <TransactionsTable
                   transactions={recentTransactions}
                   formatAmount={formatAmount}
@@ -244,8 +255,8 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
                   onOpenIncomeModal={onOpenIncomeModal}
                 />
               </div>
-              )}
-            </div>
+            )}
+          </div>
         </div>
       </div>
     </main>
