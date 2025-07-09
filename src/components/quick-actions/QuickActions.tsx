@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Music, List, Clock, Plus, User, Calculator, Minus, Plus as PlusIcon, FileText } from 'lucide-react';
+import { Music, Clock, Plus, User, Calculator, Minus, Plus as PlusIcon, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/auth/UserMenu';
 import { AuthModal } from '@/components/auth/AuthModal';

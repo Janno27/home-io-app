@@ -1,5 +1,5 @@
-import { Users, User, X } from 'lucide-react';
-import { Avatar } from '@/components/ui/avatar';
+import { User, X } from 'lucide-react';
+// import { Avatar } from '@/components/ui/avatar';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import type { NoteCollaborator } from './types';
 
@@ -10,15 +10,15 @@ interface NoteCollaboratorsProps {
 }
 
 export function NoteCollaborators({ collaborators, onUnshare, canRemove = false }: NoteCollaboratorsProps) {
-  const getInitials = (name?: string, email?: string) => {
-    if (name) {
-      return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
-    }
-    if (email) {
-      return email.slice(0, 2).toUpperCase();
-    }
-    return 'U';
-  };
+  // const getInitials = (name?: string, email?: string) => {
+  //   if (name) {
+  //     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+  //   }
+  //   if (email) {
+  //     return email.slice(0, 2).toUpperCase();
+  //   }
+  //   return 'U';
+  // };
 
   const getDisplayName = (collaborator: NoteCollaborator) => {
     return collaborator.full_name || collaborator.email;

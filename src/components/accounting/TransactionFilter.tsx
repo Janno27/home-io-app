@@ -27,8 +27,8 @@ const filterOptions = [
 export function TransactionFilter() {
   const { transactionFilter, setFilter, getFilterStats } = useAccounting();
   
+  // const currentFilterOption = filterOptions.find(option => option.value === transactionFilter);
   const filterStats = getFilterStats();
-  const currentFilterOption = filterOptions.find(option => option.value === transactionFilter);
   
   const handleFilterChange = async (filter: FilterType) => {
     await setFilter(filter);

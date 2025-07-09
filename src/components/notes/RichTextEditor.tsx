@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 import { 
   Bold, 
   Italic, 
@@ -7,8 +7,6 @@ import {
   ListOrdered, 
   Link,
   Code,
-  Edit3,
-  Eye,
   Heading2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -22,7 +20,7 @@ interface RichTextEditorProps {
   onToggleMode?: () => void;
 }
 
-export function RichTextEditor({ value, onChange, placeholder, className, isReadMode = true, onToggleMode }: RichTextEditorProps) {
+export function RichTextEditor({ value, onChange, placeholder, className, isReadMode = true }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
 
   // Fonction pour exécuter une commande de formatage

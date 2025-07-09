@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Share2, Users, User } from 'lucide-react';
+import { Share2, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import type { Note, OrganizationMember } from './types';

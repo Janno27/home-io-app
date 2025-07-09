@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useAuthContext } from '@/components/auth/AuthProvider';
-import type { Note, NoteCollaborator, OrganizationMember } from '@/components/notes/types';
+import type { Note, OrganizationMember } from '@/components/notes/types';
 
 export function useNotes() {
   const { user } = useAuthContext();
