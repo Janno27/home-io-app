@@ -213,7 +213,7 @@ export function QuickNotesWidget({ isOpen, onClose }: QuickNotesWidgetProps) {
   return (
     <div className="fixed inset-0 z-[9998] flex items-center justify-end pr-4 pointer-events-none">
       <div 
-        className={`w-80 sm:w-96 h-[65vh] bg-black/20 backdrop-blur-xl rounded-lg border border-white/20 shadow-lg overflow-hidden pointer-events-auto transition-all duration-300 flex flex-col ${
+        className={`w-80 sm:w-96 h-[65vh] bg-[#121212]/80 backdrop-blur-sm rounded-lg border border-white/20 shadow-lg overflow-hidden pointer-events-auto transition-all duration-300 flex flex-col ${
           isClosing ? 'animate-out slide-out-to-right' : 'animate-in slide-in-from-right'
         }`}
       >

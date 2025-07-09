@@ -10,6 +10,7 @@ import { AnimatedPageTransition } from '@/components/ui/AnimatedPageTransition';
 import { TransactionModal } from '@/components/accounting/TransactionModal';
 import { QuickNotesWidget } from '@/components/notes';
 import { Timer } from '@/components/timer';
+import { MusicWidget } from '@/components/music';
 import { useState } from 'react';
 import { AccountingTable } from '@/components/accounting/AccountingTable';
 import { AccountingTableSkeleton } from '@/components/accounting/AccountingTableSkeleton';
@@ -25,6 +26,8 @@ export function MainLayout() {
   const [isClosingNotes, setIsClosingNotes] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
   const [isClosingTimer, setIsClosingTimer] = useState(false);
+  const [musicActive, setMusicActive] = useState(false);
+  const [musicCollapsed, setMusicCollapsed] = useState(false);
 
   const handleToggleNotes = () => {
     if (showQuickNotes) {
@@ -54,6 +57,15 @@ export function MainLayout() {
     }
   };
 
+  const handleMusicIconClick = () => {
+    if (!musicActive) {
+      setMusicActive(true);
+      setMusicCollapsed(false);
+    } else {
+      setMusicCollapsed(prev => !prev);
+    }
+  };
+
   if (loading) {
     return (
       <div className="h-screen flex flex-col relative overflow-hidden">
@@ -77,7 +89,7 @@ export function MainLayout() {
   return (
     <>
       {/* Overlay sombre subtil quand les notes ou le timer sont ouverts - couvre toute l'app */}
-      {(showQuickNotes || isClosingNotes || showTimer || isClosingTimer) && (
+      {(showQuickNotes || isClosingNotes || showTimer || isClosingTimer || (musicActive && !musicCollapsed)) && (
         <div className={`fixed inset-0 bg-black/10 z-[9997] transition-all duration-500 ease-in-out pointer-events-none ${
           (isClosingNotes || isClosingTimer) ? 'animate-out fade-out' : 'animate-in fade-in'
         }`} />
@@ -92,6 +104,8 @@ export function MainLayout() {
             onOpenIncomeModal={() => setShowIncomeModal(true)}
             onOpenQuickNotes={handleToggleNotes}
             onOpenTimer={handleToggleTimer}
+            onMusicClick={handleMusicIconClick}
+            musicActive={musicActive}
           />
           <AnimatedPageTransition currentPage={currentPage}>
             {currentPage === 'home' ? (
@@ -138,6 +152,14 @@ export function MainLayout() {
         onClose={handleToggleTimer}
       />
       
+      {musicActive && (
+        <MusicWidget
+          active={musicActive}
+          collapsed={musicCollapsed}
+          onToggleCollapse={handleMusicIconClick}
+        />
+      )}
+
       <Toaster position="top-right" />
     </>
   );

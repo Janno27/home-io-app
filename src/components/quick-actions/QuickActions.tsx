@@ -15,9 +15,11 @@ interface QuickActionsProps {
   onOpenIncomeModal?: () => void;
   onOpenQuickNotes?: () => void;
   onOpenTimer?: () => void;
+  onMusicClick?: () => void;
+  musicActive?: boolean;
 }
 
-export function QuickActions({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer }: QuickActionsProps) {
+export function QuickActions({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer, onMusicClick, musicActive }: QuickActionsProps) {
   const { user } = useAuthContext();
   const [showAuthModal, setShowAuthModal] = useState(false);
 
@@ -26,8 +28,17 @@ export function QuickActions({ currentPage, navigateTo, onOpenExpenseModal, onOp
       <div className="flex items-center space-x-1 p-1 transition-all duration-200 ease-out">
         {currentPage === 'home' && (
           <div className="flex items-center space-x-1">
-            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-8 w-8 p-0 relative"
+              onClick={onMusicClick}
+              title="Musique"
+            >
               <Music className="w-4 h-4 text-gray-600" />
+              {musicActive && (
+                <span className="absolute -top-0.5 -right-0.5 w-0 h-0 border-l-4 border-r-4 border-b-4 border-transparent border-b-[#1DB954]" />
+              )}
             </Button>
             <Button 
               variant="ghost" 

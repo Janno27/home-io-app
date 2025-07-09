@@ -13,9 +13,11 @@ interface HeaderProps {
   onOpenIncomeModal?: () => void;
   onOpenQuickNotes?: () => void;
   onOpenTimer?: () => void;
+  onMusicClick?: () => void;
+  musicActive?: boolean;
 }
 
-export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer }: HeaderProps) {
+export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer, onMusicClick, musicActive }: HeaderProps) {
   return (
     <header className="flex-shrink-0 w-full px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10 transition-all duration-200 ease-out">
       <div className="flex items-center justify-between">
@@ -57,6 +59,8 @@ export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenInco
               onOpenIncomeModal={onOpenIncomeModal}
               onOpenQuickNotes={onOpenQuickNotes}
               onOpenTimer={onOpenTimer}
+              onMusicClick={onMusicClick}
+              musicActive={musicActive}
             />
           </WidgetContainer>
         </div>
