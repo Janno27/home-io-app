@@ -66,6 +66,10 @@ export function MainLayout() {
     }
   };
 
+  const handleMusicClose = () => {
+    setMusicActive(false);
+  };
+
   if (loading) {
     return (
       <div className="h-screen flex flex-col relative overflow-hidden">
@@ -157,6 +161,7 @@ export function MainLayout() {
           active={musicActive}
           collapsed={musicCollapsed}
           onToggleCollapse={handleMusicIconClick}
+          onClose={handleMusicClose}
         />
       )}
 

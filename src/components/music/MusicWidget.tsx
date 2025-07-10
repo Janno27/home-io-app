@@ -6,9 +6,10 @@ interface MusicWidgetProps {
   active: boolean;
   collapsed: boolean;
   onToggleCollapse: () => void;
+  onClose: () => void;
 }
 
-export function MusicWidget({ active, collapsed, onToggleCollapse }: MusicWidgetProps) {
+export function MusicWidget({ active, collapsed, onToggleCollapse, onClose }: MusicWidgetProps) {
   const [spotifyUrl, setSpotifyUrl] = useState('');
   const [embedSrc, setEmbedSrc] = useState('');
 
@@ -78,7 +79,14 @@ export function MusicWidget({ active, collapsed, onToggleCollapse }: MusicWidget
                 className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white flex-shrink-0"
                 title="Ranger"
               >
-                ▾
+                {collapsed ? '▴' : '▾'}
+              </button>
+              <button
+                onClick={onClose}
+                className="w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-white flex-shrink-0"
+                title="Fermer"
+              >
+                ✕
               </button>
             </div>
             <iframe
