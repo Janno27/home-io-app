@@ -3,6 +3,7 @@ import { Play, Pause, RotateCcw, X, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { DockAnimation } from '@/components/ui/DockAnimation';
+import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 
 interface TimerProps {
   isOpen: boolean;
@@ -16,6 +17,9 @@ export function Timer({ isOpen, onClose, originPoint }: TimerProps) {
   const [isConfiguring, setIsConfiguring] = useState(false);
   const [configTime, setConfigTime] = useState(25); // en minutes
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  const widgetRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(widgetRef, onClose);
 
   // Réinitialiser le timer quand le widget se ferme
   useEffect(() => {
@@ -81,7 +85,7 @@ export function Timer({ isOpen, onClose, originPoint }: TimerProps) {
   return (
     <DockAnimation isOpen={isOpen} originPoint={originPoint}>
       <div className="flex items-start justify-end pr-4 h-full pointer-events-none pt-32">
-        <div className="w-80 h-[45vh] bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden pointer-events-auto flex flex-col">
+        <div ref={widgetRef} className="w-80 h-[45vh] bg-gray-100/95 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden pointer-events-auto flex flex-col">
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
             <div className="flex items-center space-x-2">

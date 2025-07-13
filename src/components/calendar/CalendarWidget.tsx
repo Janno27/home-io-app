@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Calendar as CalendarIcon, X, Plus, ChevronLeft, ChevronRight, ArrowRight } from 'lucide-react';
 import { CalendarExpand } from '@/components/calendar';
 import { useEvents, type CalendarEvent } from '@/hooks/useEvents';
@@ -7,6 +7,7 @@ import { EventDetail } from '@/components/calendar/EventDetail';
 import { EventForm } from '@/components/calendar/EventForm';
 import { UserDot } from '@/components/accounting/UserDot';
 import { useOrganizations } from '@/hooks/useOrganizations';
+import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 
 interface CalendarWidgetProps {
   showTrigger?: boolean;
@@ -21,6 +22,13 @@ export function CalendarWidget({ showTrigger = true }: CalendarWidgetProps) {
   const [currentEvent, setCurrentEvent] = useState<CalendarEvent | null>(null);
   const { events, create, update, remove } = useEvents();
   const { members } = useOrganizations();
+
+  const widgetRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(widgetRef, () => {
+    if (isOpen) {
+      handleToggle();
+    }
+  });
 
   // Handler suppression (placé ici avant tout return)
   const handleDelete = async (id: string) => {
@@ -107,7 +115,8 @@ export function CalendarWidget({ showTrigger = true }: CalendarWidgetProps) {
     <>
       {accessButton}
       <div
-        className={`fixed right-4 top-32 sm:top-28 bottom-20 z-[9998] ${expanded ? 'w-[28rem] sm:w-[40rem]' : 'w-72 sm:w-96'} max-h-[calc(100vh-9rem)] flex flex-col overflow-hidden backdrop-blur-sm bg-white/15 rounded-lg border border-white/20 shadow-sm transition-all origin-bottom-right ${
+        ref={widgetRef}
+        className={`fixed right-4 top-32 sm:top-28 bottom-20 z-[9998] ${expanded ? 'w-[28rem] sm:w-[40rem]' : 'w-72 sm:w-96'} max-h-[calc(100vh-9rem)] flex flex-col overflow-hidden backdrop-blur-sm bg-gray-100/95 rounded-lg border border-white/20 shadow-sm transition-all origin-bottom-right ${
           isClosing ? 'dock-out' : 'dock-in'
         } text-gray-700`}
       >

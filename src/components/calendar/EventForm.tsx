@@ -45,19 +45,19 @@ export function EventForm({ initial, onCancel, onSave }: EventFormProps) {
       <div className="flex-1 overflow-y-auto p-6 space-y-4">
         <div className="space-y-1">
           <label className="text-gray-600 text-sm">Titre</label>
-          <input value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-white/15 text-gray-700 p-2 rounded" />
+          <input value={title} onChange={e=>setTitle(e.target.value)} className="w-full bg-white/15 text-gray-700 p-2 rounded border border-white/30 focus:border-blue-500/80 outline-none transition-colors" />
         </div>
         <div className="space-y-1">
           <label className="text-gray-600 text-sm">Début</label>
-          <input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)} className="w-full bg-white/15 text-gray-700 p-2 rounded" />
+          <input type="datetime-local" value={start} onChange={e=>setStart(e.target.value)} className="w-full bg-white/15 text-gray-700 p-2 rounded border border-white/30 focus:border-blue-500/80 outline-none transition-colors" />
         </div>
         <div className="space-y-1">
           <label className="text-gray-600 text-sm">Fin</label>
-          <input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)} className="w-full bg-white/15 text-gray-700 p-2 rounded" />
+          <input type="datetime-local" value={end} onChange={e=>setEnd(e.target.value)} className="w-full bg-white/15 text-gray-700 p-2 rounded border border-white/30 focus:border-blue-500/80 outline-none transition-colors" />
         </div>
         <div className="space-y-1">
           <label className="text-gray-600 text-sm">Description</label>
-          <textarea value={description} onChange={e=>setDescription(e.target.value)} rows={3} className="w-full bg-white/15 text-gray-700 p-2 rounded" />
+          <textarea value={description} onChange={e=>setDescription(e.target.value)} rows={3} className="w-full bg-white/15 text-gray-700 p-2 rounded border border-white/30 focus:border-blue-500/80 outline-none transition-colors" />
         </div>
         {members.length>0 && (
           <div className="space-y-1">

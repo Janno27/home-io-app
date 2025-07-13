@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { FileText, X, Plus, ChevronRight, ArrowLeft, Trash2, Edit3 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { NoteCollaborators } from './NoteCollaborators';
 import { useNotes } from '@/hooks/useNotes';
 import { DockAnimation } from '@/components/ui/DockAnimation';
 import type { Note } from './types';
+import { useOnClickOutside } from '@/hooks/useOnClickOutside';
 
 interface QuickNotesWidgetProps {
   isOpen: boolean;
@@ -33,6 +34,9 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
   const [content, setContent] = useState('');
   const [isReadMode, setIsReadMode] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
+
+  const widgetRef = useRef<HTMLDivElement>(null);
+  useOnClickOutside(widgetRef, onClose);
 
   // Les notes sont maintenant gérées par le hook useNotes
 
@@ -196,7 +200,8 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
     <DockAnimation isOpen={isOpen} originPoint={originPoint}>
       <div className="flex items-center justify-end pr-4 h-full pointer-events-none">
         <div 
-          className="w-80 sm:w-96 h-[65vh] bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden pointer-events-auto flex flex-col text-gray-700"
+          ref={widgetRef}
+          className="w-80 sm:w-96 h-[65vh] bg-gray-100/95 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden pointer-events-auto flex flex-col text-gray-700"
         >
           {/* Header */}
           <div className="flex items-center justify-between p-4 border-b border-white/10 flex-shrink-0">
