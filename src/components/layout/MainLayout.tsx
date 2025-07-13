@@ -16,6 +16,8 @@ import { AccountingTable } from '@/components/accounting/AccountingTable';
 import { AccountingTableSkeleton } from '@/components/accounting/AccountingTableSkeleton';
 import { useAccounting } from '@/hooks/useAccounting';
 import { EvolutionPage } from '@/components/accounting/evolution';
+import { CalendarWidget } from '@/components/calendar';
+import { DashboardPage } from '@/components/accounting/dashboard';
 
 export function MainLayout() {
   const { user, loading } = useAuthContext();
@@ -23,20 +25,16 @@ export function MainLayout() {
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showQuickNotes, setShowQuickNotes] = useState(false);
-  const [isClosingNotes, setIsClosingNotes] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
-  const [isClosingTimer, setIsClosingTimer] = useState(false);
   const [musicActive, setMusicActive] = useState(false);
   const [musicCollapsed, setMusicCollapsed] = useState(false);
+  const [notesIconPosition, setNotesIconPosition] = useState<{ x: number; y: number } | undefined>();
+  const [timerIconPosition, setTimerIconPosition] = useState<{ x: number; y: number } | undefined>();
 
   const handleToggleNotes = () => {
     if (showQuickNotes) {
-      // Fermeture avec transition
-      setIsClosingNotes(true);
-      setTimeout(() => {
-        setShowQuickNotes(false);
-        setIsClosingNotes(false);
-      }, 300);
+      // Fermeture immédiate - l'animation est gérée par DockAnimation
+      setShowQuickNotes(false);
     } else {
       // Ouverture
       setShowQuickNotes(true);
@@ -45,12 +43,8 @@ export function MainLayout() {
 
   const handleToggleTimer = () => {
     if (showTimer) {
-      // Fermeture avec transition
-      setIsClosingTimer(true);
-      setTimeout(() => {
-        setShowTimer(false);
-        setIsClosingTimer(false);
-      }, 300);
+      // Fermeture immédiate - l'animation est gérée par DockAnimation
+      setShowTimer(false);
     } else {
       // Ouverture
       setShowTimer(true);
@@ -92,15 +86,9 @@ export function MainLayout() {
   // Si l'utilisateur est connecté, afficher l'application principale
   return (
     <>
-      {/* Overlay sombre subtil quand les notes ou le timer sont ouverts - couvre toute l'app */}
-      {(showQuickNotes || isClosingNotes || showTimer || isClosingTimer || (musicActive && !musicCollapsed)) && (
-        <div className={`fixed inset-0 bg-black/10 z-[9997] transition-all duration-500 ease-in-out pointer-events-none ${
-          (isClosingNotes || isClosingTimer) ? 'animate-out fade-out' : 'animate-in fade-in'
-        }`} />
-      )}
       <div className="h-screen flex flex-col relative overflow-hidden">
         <AnimatedBackground />
-        <div className="relative z-10 flex flex-col h-full overflow-hidden">
+        <div className={`relative z-10 flex flex-col h-full ${currentPage === 'dashboard' ? 'overflow-auto' : 'overflow-hidden'}`}>
           <Header 
             currentPage={currentPage} 
             navigateTo={navigateTo}
@@ -110,6 +98,10 @@ export function MainLayout() {
             onOpenTimer={handleToggleTimer}
             onMusicClick={handleMusicIconClick}
             musicActive={musicActive}
+            showQuickNotes={showQuickNotes}
+            showTimer={showTimer}
+            onGetNotesIconPosition={setNotesIconPosition}
+            onGetTimerIconPosition={setTimerIconPosition}
           />
           <AnimatedPageTransition currentPage={currentPage}>
             {currentPage === 'home' ? (
@@ -122,6 +114,8 @@ export function MainLayout() {
                 onOpenExpenseModal={() => setShowExpenseModal(true)}
                 onOpenIncomeModal={() => setShowIncomeModal(true)}
               />
+            ) : currentPage === 'dashboard' ? (
+              <DashboardPage navigateTo={navigateTo} />
             ) : (
               <AccountingHero 
                 navigateTo={navigateTo}
@@ -149,11 +143,13 @@ export function MainLayout() {
       <QuickNotesWidget
         isOpen={showQuickNotes}
         onClose={handleToggleNotes}
+        originPoint={notesIconPosition}
       />
       
-              <Timer
-          isOpen={showTimer}
+      <Timer
+        isOpen={showTimer}
         onClose={handleToggleTimer}
+        originPoint={timerIconPosition}
       />
       
       {musicActive && (
@@ -165,13 +161,16 @@ export function MainLayout() {
         />
       )}
 
+      {/* Mini calendrier accessible en bas à droite */}
+      <CalendarWidget showTrigger={currentPage === 'home'} />
+
       <Toaster position="top-right" />
     </>
   );
 }
 
 // Composant séparé pour la page AccountingTable
-function AccountingTablePage({ navigateTo: _navigateTo }: { navigateTo: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void }) {
+function AccountingTablePage({ navigateTo: _navigateTo }: { navigateTo: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution' | 'dashboard') => void }) {
   const { loading } = useAccounting();
   
   return (

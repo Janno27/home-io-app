@@ -6,7 +6,7 @@ import { useOrganizations } from '@/hooks/useOrganizations';
 import { useAuthContext } from '@/components/auth/AuthProvider';
 
 interface StockWidgetProps {
-  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void;
+  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution' | 'dashboard') => void;
 }
 
 export function StockWidget({ navigateTo }: StockWidgetProps) {

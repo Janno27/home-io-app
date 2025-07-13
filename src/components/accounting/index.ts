@@ -10,6 +10,7 @@ export { TransactionContextMenu } from './TransactionContextMenu';
 export { UserDot } from './UserDot';
 export { TransactionFilter } from './TransactionFilter';
 export { TransactionFilterPopover } from './TransactionFilterPopover';
+export { DashboardWidget } from './dashboard';
 
 // Skeletons
 export { BalanceCardSkeleton } from './BalanceCardSkeleton';

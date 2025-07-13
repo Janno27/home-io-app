@@ -15,9 +15,26 @@ interface HeaderProps {
   onOpenTimer?: () => void;
   onMusicClick?: () => void;
   musicActive?: boolean;
+  showQuickNotes?: boolean;
+  showTimer?: boolean;
+  onGetNotesIconPosition?: (position: { x: number; y: number }) => void;
+  onGetTimerIconPosition?: (position: { x: number; y: number }) => void;
 }
 
-export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenIncomeModal, onOpenQuickNotes, onOpenTimer, onMusicClick, musicActive }: HeaderProps) {
+export function Header({ 
+  currentPage, 
+  navigateTo, 
+  onOpenExpenseModal, 
+  onOpenIncomeModal, 
+  onOpenQuickNotes, 
+  onOpenTimer, 
+  onMusicClick, 
+  musicActive,
+  showQuickNotes,
+  showTimer,
+  onGetNotesIconPosition,
+  onGetTimerIconPosition
+}: HeaderProps) {
   return (
     <header className="flex-shrink-0 w-full px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10 transition-all duration-200 ease-out">
       <div className="flex items-center justify-between">
@@ -35,6 +52,7 @@ export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenInco
                 onClick={() => navigateTo(
                   currentPage === 'accounting-table' ? 'accounting' : 
                   currentPage === 'evolution' ? 'accounting' : 
+                  currentPage === 'dashboard' ? 'accounting' :
                   'home'
                 )}
                 className="flex items-center space-x-2 text-gray-600 hover:text-gray-800 transition-colors"
@@ -61,6 +79,10 @@ export function Header({ currentPage, navigateTo, onOpenExpenseModal, onOpenInco
               onOpenTimer={onOpenTimer}
               onMusicClick={onMusicClick}
               musicActive={musicActive}
+              showQuickNotes={showQuickNotes}
+              showTimer={showTimer}
+              onGetNotesIconPosition={onGetNotesIconPosition}
+              onGetTimerIconPosition={onGetTimerIconPosition}
             />
           </WidgetContainer>
         </div>

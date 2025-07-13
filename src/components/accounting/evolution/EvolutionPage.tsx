@@ -12,7 +12,7 @@ import { CategoryEvolutionChart } from './CategoryEvolutionChart';
 interface EvolutionPageProps {
   onOpenExpenseModal?: () => void;
   onOpenIncomeModal?: () => void;
-  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void;
+  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution' | 'dashboard') => void;
 }
 
 export function EvolutionPage({ navigateTo }: EvolutionPageProps) {

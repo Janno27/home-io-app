@@ -40,14 +40,14 @@ export function ShareNoteDialog({ note, organizationMembers, onShare }: ShareNot
         <Button
           variant="ghost"
           size="sm"
-          className="h-8 w-8 p-0 hover:bg-white/20 text-white/90 hover:text-white"
+          className="h-8 w-8 p-0 rounded-full hover:bg-white/20 text-gray-600 hover:text-gray-700"
           title="Partager"
         >
           <Share2 className="w-4 h-4" />
         </Button>
       </PopoverTrigger>
       <PopoverContent 
-        className="w-48 bg-black/90 backdrop-blur-xl border border-white/20 text-white p-1 z-[9999]" 
+        className="w-48 bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 p-1 z-[9999]" 
         align="end"
       >
         <div className="space-y-0.5">
@@ -56,9 +56,9 @@ export function ShareNoteDialog({ note, organizationMembers, onShare }: ShareNot
               <button
                 key={member.user_id}
                 onClick={() => handleShareWithUser(member.user_id)}
-                className="w-full flex items-center space-x-2 p-2 rounded hover:bg-white/10 transition-colors text-left"
+                className="w-full flex items-center space-x-2 p-2 rounded hover:bg-white/20 transition-colors text-left text-gray-600 hover:text-gray-700"
               >
-                <User className="h-4 w-4 text-white/60" />
+                <User className="h-4 w-4 text-gray-500" />
                 <span className="text-sm truncate">
                   {member.full_name || member.email}
                 </span>
@@ -66,7 +66,7 @@ export function ShareNoteDialog({ note, organizationMembers, onShare }: ShareNot
             ))
           ) : (
             <div className="flex items-center justify-center py-4 text-center">
-              <p className="text-xs text-white/60">
+              <p className="text-xs text-gray-500">
                 Tous les membres ont accès
               </p>
             </div>

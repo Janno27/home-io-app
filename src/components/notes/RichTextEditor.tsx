@@ -117,17 +117,9 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
     if (url) {
       const selection = window.getSelection();
       const selectedText = selection?.toString() || 'Lien';
-      const linkHTML = `<a href="${url}" class="text-blue-400 hover:text-blue-300 underline">${selectedText}</a>`;
+      const linkHTML = `<a href="${url}" class="text-blue-500 hover:text-blue-600 underline">${selectedText}</a>`;
       insertHTML(linkHTML);
     }
-  };
-
-  // Fonction pour insérer un sous-titre
-  const insertSubtitle = () => {
-    const selection = window.getSelection();
-    const selectedText = selection?.toString() || 'Sous-titre';
-    const subtitleHTML = `<h2 class="text-lg font-semibold text-white/90 mt-4 mb-2">${selectedText}</h2>`;
-    insertHTML(subtitleHTML);
   };
 
   // Mettre à jour le contenu
@@ -164,7 +156,6 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
     { icon: Code, action: () => executeCommand('formatBlock', 'code'), title: 'Code' },
     { icon: List, action: insertBulletList, title: 'Liste à puces' },
     { icon: ListOrdered, action: insertNumberedList, title: 'Liste numérotée' },
-    { icon: Heading2, action: insertSubtitle, title: 'Sous-titre' },
     { icon: Link, action: insertLink, title: 'Lien' },
   ];
 
@@ -172,7 +163,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
     <div className={`flex flex-col h-full ${className}`}>
       {/* Sticky Toolbar */}
       {!isReadMode && (
-        <div className="flex-shrink-0 sticky top-0 z-10 flex items-center p-2 border-b border-white/10 bg-white/5 rounded-t-lg backdrop-blur-sm">
+        <div className="flex-shrink-0 sticky top-0 z-10 flex items-center p-2 border-b border-white/10 bg-white/15 rounded-t-lg backdrop-blur-sm">
           <div className="flex items-center space-x-1">
             {toolbarButtons.map((button, index) => (
               <Button
@@ -180,7 +171,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
                 variant="ghost"
                 size="sm"
                 onClick={button.action}
-                className="h-8 w-8 p-0 hover:bg-white/10 text-white/70 hover:text-white flex-shrink-0"
+                className="h-8 w-8 p-0 hover:bg-white/20 text-gray-500 hover:text-gray-700 flex-shrink-0"
                 title={button.title}
               >
                 <button.icon className="w-4 h-4" />
@@ -191,13 +182,13 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
       )}
 
       {/* Editor/Reader Container */}
-      <div className="flex-1 relative overflow-hidden bg-white/5 rounded-b-lg">
+              <div className="flex-1 relative overflow-hidden bg-white/10 rounded-b-lg">
         {isReadMode ? (
           // Mode lecture
-          <div className="h-full w-full p-4 text-white overflow-y-auto">
+          <div className="h-full w-full p-4 text-gray-700 overflow-y-auto">
             {value ? (
               <div 
-                className="prose prose-invert max-w-none text-white/90 leading-relaxed"
+                className="prose prose-invert max-w-none text-gray-600 leading-relaxed"
                 style={{ 
                   fontSize: '12px',
                   lineHeight: '1.5',
@@ -206,7 +197,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
                 dangerouslySetInnerHTML={{ __html: value }}
               />
             ) : (
-              <div className="text-white/50 italic text-xs">
+              <div className="text-gray-500 italic text-xs">
                 {placeholder || 'Aucun contenu à afficher'}
               </div>
             )}
@@ -219,7 +210,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
               contentEditable
               suppressContentEditableWarning
               onInput={updateContent}
-              className="h-full w-full p-4 text-white focus:outline-none overflow-y-auto resize-none"
+              className="h-full w-full p-4 text-gray-700 focus:outline-none overflow-y-auto resize-none"
               style={{ 
                 minHeight: '200px',
                 textAlign: 'left',
@@ -228,7 +219,7 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
               }}
             />
             {(!value || value === '') && (
-              <div className="absolute top-4 left-4 text-white/60 pointer-events-none text-xs">
+              <div className="absolute top-4 left-4 text-gray-500 pointer-events-none text-xs">
                 {placeholder}
               </div>
             )}

@@ -59,19 +59,19 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
                     <img 
                       src={collaborator.avatar_url}
                       alt={getDisplayName(collaborator)}
-                      className={`h-6 w-6 rounded-full border border-white/20 object-cover transition-transform hover:scale-110 ${
+                      className={`h-6 w-6 rounded-full border-2 border-white/20 object-cover transition-transform hover:scale-110 ${
                         index > 0 ? '-ml-2' : ''
                       }`}
                       style={{ zIndex: displayCollaborators.length - index }}
                     />
                   ) : (
                     <div 
-                      className={`h-6 w-6 rounded-full border border-white/20 bg-white/20 flex items-center justify-center transition-transform hover:scale-110 ${
+                      className={`h-6 w-6 rounded-full border-2 border-white/20 bg-gray-200 flex items-center justify-center transition-transform hover:scale-110 ${
                         index > 0 ? '-ml-2' : ''
                       }`}
                       style={{ zIndex: displayCollaborators.length - index }}
                     >
-                      <User className="h-3 w-3 text-white/80" />
+                      <User className="h-3 w-3 text-gray-500" />
                     </div>
                   )}
                   
@@ -82,22 +82,22 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
                         e.stopPropagation();
                         onUnshare(collaborator.user_id);
                       }}
-                      className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-red-500/90 border border-white/30 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600 hover:scale-110"
+                      className="absolute -top-0.5 -right-0.5 h-3.5 w-3.5 rounded-full bg-red-500 border border-white/50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 hover:bg-red-600 hover:scale-110"
                       style={{ zIndex: displayCollaborators.length - index + 10 }}
                       title="Retirer l'accès"
                     >
-                      <X className="h-2 w-2 text-white" />
+                      <X className="h-2 w-2 text-white/90" />
                     </button>
                   )}
                 </div>
               </TooltipTrigger>
               <TooltipContent 
                 side="bottom" 
-                className="bg-black/90 text-white border border-white/20 text-xs"
+                className="bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 text-xs"
               >
                 <div className="text-center">
                   <p className="font-medium">{getDisplayName(collaborator)}</p>
-                  <p className="text-white/60">{getRole(collaborator)}</p>
+                  <p className="text-gray-500">{getRole(collaborator)}</p>
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -107,19 +107,19 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
         {remainingCount > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="h-6 w-6 -ml-2 rounded-full bg-white/20 border border-white/20 flex items-center justify-center text-xs text-white/80 font-medium">
+              <div className="h-6 w-6 -ml-2 rounded-full bg-gray-200 border-2 border-white/20 flex items-center justify-center text-xs text-gray-500 font-medium">
                 +{remainingCount}
               </div>
             </TooltipTrigger>
             <TooltipContent 
               side="bottom" 
-              className="bg-black/90 text-white border border-white/20 text-xs"
+              className="bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 text-xs"
             >
               <div className="space-y-1">
                 {nonCreatorCollaborators.slice(maxDisplay).map((collaborator) => (
                   <div key={collaborator.user_id} className="text-center">
                     <p className="font-medium">{getDisplayName(collaborator)}</p>
-                    <p className="text-white/60">{getRole(collaborator)}</p>
+                    <p className="text-gray-500">{getRole(collaborator)}</p>
                   </div>
                 ))}
               </div>

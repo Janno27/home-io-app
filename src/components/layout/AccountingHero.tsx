@@ -17,7 +17,7 @@ import { TransactionFilterPopover } from '@/components/accounting';
 interface AccountingHeroProps {
   onOpenExpenseModal?: () => void;
   onOpenIncomeModal?: () => void;
-  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution') => void;
+  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution' | 'dashboard') => void;
 }
 
 
@@ -261,12 +261,22 @@ export function AccountingHero({ onOpenExpenseModal, onOpenIncomeModal, navigate
 
           {/* Colonne de droite - 40% - Tableau des transactions */}
           <div className="lg:col-span-2 flex flex-col min-h-0">
+            {/* CTA Dashboard */}
+            <div className="flex justify-end mb-2">
+              <button
+                onClick={() => navigateTo?.('dashboard')}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors flex items-center space-x-1 group"
+              >
+                <span>Accéder au dashboard</span>
+                <span className="transform group-hover:translate-x-0.5 transition-transform">→</span>
+              </button>
+            </div>
             {loading && transactions.length === 0 ? (
-              <div style={{ paddingTop: '1.5rem' }}>
+              <div>
                 <TransactionsTableSkeleton />
               </div>
             ) : (
-              <div style={{ paddingTop: '1.5rem' }}>
+              <div>
                 <TransactionsTable
                   transactions={recentTransactions}
                   formatAmount={formatAmount}
