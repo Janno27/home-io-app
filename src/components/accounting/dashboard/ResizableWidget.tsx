@@ -11,21 +11,17 @@ interface ResizableWidgetProps {
   children: ReactNode;
   id: string;
   size: WidgetSize;
-  position: { x: number; y: number };
   isEditMode: boolean;
   onResize: (id: string, newSize: WidgetSize) => void;
-  onMove: (id: string, newPosition: { x: number; y: number }) => void;
   onDelete?: (id: string) => void;
 }
 
-export function ResizableWidget({ 
-  children, 
-  id, 
-  size, 
-  position, 
-  isEditMode, 
-  onResize, 
-  onMove,
+export function ResizableWidget({
+  id,
+  children,
+  size,
+  onResize,
+  isEditMode,
   onDelete
 }: ResizableWidgetProps) {
   const [isDragging, setIsDragging] = useState<'width' | 'height' | null>(null);

@@ -115,7 +115,7 @@ export function MainLayout() {
                 onOpenIncomeModal={() => setShowIncomeModal(true)}
               />
             ) : currentPage === 'dashboard' ? (
-              <DashboardPage navigateTo={navigateTo} />
+              <DashboardPage />
             ) : (
               <AccountingHero 
                 navigateTo={navigateTo}

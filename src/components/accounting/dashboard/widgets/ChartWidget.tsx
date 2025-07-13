@@ -2,15 +2,12 @@ import { ChartContainer, ChartConfig, ChartTooltip, ChartTooltipContent } from '
 import { Bar, BarChart, Line, LineChart, XAxis, YAxis, ResponsiveContainer } from 'recharts';
 import { Button } from '@/components/ui/button';
 import { Edit3, Palette } from 'lucide-react';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useState } from 'react';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 
 interface ChartWidgetProps {
   title: string;
   data: Array<{ label: string; value: number }>;
   type: 'bar' | 'line';
-  size?: 'small' | 'medium' | 'large' | 'xl';
   color?: string;
   onEdit?: () => void;
   onColorChange?: (color: string) => void;
@@ -29,13 +26,11 @@ export function ChartWidget({
   title, 
   data, 
   type, 
-  size = 'medium', 
   color = 'hsl(var(--chart-1))',
   onEdit, 
   onColorChange,
   isEditMode = false
 }: ChartWidgetProps) {
-  const [showColorPicker, setShowColorPicker] = useState(false);
 
   // Configuration pour shadcn chart
   const chartConfig: ChartConfig = {
@@ -49,22 +44,6 @@ export function ChartWidget({
     name: item.label,
     value: item.value,
   }));
-
-  // Tailles de widget
-  const sizeClasses = {
-    small: 'col-span-1 row-span-1',
-    medium: 'col-span-2 row-span-1', 
-    large: 'col-span-2 row-span-2',
-    xl: 'col-span-4 row-span-2'
-  };
-
-  // Hauteurs correspondantes
-  const heights = {
-    small: 'h-48',
-    medium: 'h-64',
-    large: 'h-80',
-    xl: 'h-96'
-  };
 
   return (
     <div className="h-full bg-white/40 backdrop-blur-sm rounded-xl p-6 border border-white/50 shadow-lg flex flex-col">

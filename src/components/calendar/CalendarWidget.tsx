@@ -3,19 +3,10 @@ import { Calendar as CalendarIcon, X, Plus, ChevronLeft, ChevronRight, ArrowRigh
 import { CalendarExpand } from '@/components/calendar';
 import { useEvents, type CalendarEvent } from '@/hooks/useEvents';
 import { toast } from '@/hooks/use-toast';
-import { Button } from '@/components/ui/button';
 import { EventDetail } from '@/components/calendar/EventDetail';
 import { EventForm } from '@/components/calendar/EventForm';
 import { UserDot } from '@/components/accounting/UserDot';
 import { useOrganizations } from '@/hooks/useOrganizations';
-
-function formatDate(date: Date) {
-  return date.toLocaleDateString('fr-FR', {
-    weekday: 'short',
-    hour: '2-digit',
-    minute: '2-digit',
-  });
-}
 
 interface CalendarWidgetProps {
   showTrigger?: boolean;
@@ -28,7 +19,7 @@ export function CalendarWidget({ showTrigger = true }: CalendarWidgetProps) {
   const [selectedDate, setSelectedDate] = useState<Date | undefined>(new Date());
   const [view, setView] = useState<'list' | 'detail' | 'form'>('list');
   const [currentEvent, setCurrentEvent] = useState<CalendarEvent | null>(null);
-  const { events, loading, create, update, remove } = useEvents();
+  const { events, create, update, remove } = useEvents();
   const { members } = useOrganizations();
 
   // Handler suppression (placé ici avant tout return)

@@ -1,7 +1,7 @@
 import { Calendar } from '@/components/ui/calendar';
 import type { CalendarEvent } from '@/hooks/useEvents';
-import { DayPicker } from 'react-day-picker';
 import { ReactElement } from 'react';
+export type { CalendarEvent };
 
 interface CalendarExpandProps {
   date: Date | undefined;

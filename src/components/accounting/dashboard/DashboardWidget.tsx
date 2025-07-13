@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { X, Plus, Settings, Grip } from 'lucide-react';
 import { DockAnimation } from '@/components/ui/DockAnimation';
 import { StatsWidget, ChartWidget, TableWidget, SummaryWidget } from './widgets';
+import type { ChartData } from './FullScreenSpreadsheet';
 
 interface DashboardWidgetProps {
   isOpen: boolean;
@@ -15,6 +16,7 @@ interface DashboardItem {
   title: string;
   position: { x: number; y: number };
   size: { width: number; height: number };
+  data?: ChartData;
 }
 
 export function DashboardWidget({ isOpen, onClose, originPoint }: DashboardWidgetProps) {
@@ -38,7 +40,20 @@ export function DashboardWidget({ isOpen, onClose, originPoint }: DashboardWidge
       type: 'chart',
       title: 'Évolution mensuelle',
       position: { x: 0, y: 1 },
-      size: { width: 2, height: 2 }
+      size: { width: 2, height: 2 },
+      data: {
+        id: 'chart-1',
+        title: 'Évolution mensuelle',
+        type: 'line',
+        data: [
+          { label: 'Jan', value: 1200 },
+          { label: 'Fev', value: 1900 },
+          { label: 'Mar', value: 3000 },
+          { label: 'Avr', value: 5000 },
+          { label: 'Mai', value: 2300 },
+          { label: 'Juin', value: 3200 },
+        ]
+      }
     },
     {
       id: '4',
@@ -67,7 +82,7 @@ export function DashboardWidget({ isOpen, onClose, originPoint }: DashboardWidge
   };
 
   return (
-    <DockAnimation isOpen={isOpen} onClose={onClose} originPoint={originPoint}>
+    <DockAnimation isOpen={isOpen} originPoint={originPoint}>
       <div className="flex items-center justify-center p-4 h-full pointer-events-none">
         <div className="w-[90vw] max-w-6xl h-[85vh] bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden pointer-events-auto flex flex-col">
           
@@ -158,7 +173,7 @@ function DashboardItem({ item, isEditing, onRemove }: DashboardItemProps) {
           <ChartWidget
             title={item.title}
             type="line"
-            height="h-32"
+            data={item.data?.data || []}
           />
         );
       case 'table':

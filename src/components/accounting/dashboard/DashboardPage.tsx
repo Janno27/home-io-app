@@ -1,8 +1,8 @@
-import { Plus, Edit3, Check, X } from 'lucide-react';
+import { Plus } from 'lucide-react';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { FullScreenSpreadsheet, ChartData } from './FullScreenSpreadsheet';
 import { FullScreenTableEditor, TableData } from './FullScreenTableEditor';
 import { ResizableWidget, WidgetSize } from './ResizableWidget';
@@ -48,10 +48,10 @@ interface Dashboard {
 }
 
 interface DashboardPageProps {
-  navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution' | 'dashboard') => void;
+  // navigateTo?: (page: 'home' | 'accounting' | 'accounting-table' | 'evolution' | 'dashboard') => void;
 }
 
-export function DashboardPage({ navigateTo }: DashboardPageProps) {
+export function DashboardPage({}: DashboardPageProps) {
   const [showTableEditor, setShowTableEditor] = useState(false);
   const [showSpreadsheet, setShowSpreadsheet] = useState(false);
   const [selectedWidgetType, setSelectedWidgetType] = useState<WidgetType | null>(null);
@@ -155,10 +155,6 @@ export function DashboardPage({ navigateTo }: DashboardPageProps) {
   const handleResizeTable = (id: string, size: WidgetSize) => updateActiveDashboard(d => ({ ...d, tableWidgets: d.tableWidgets.map(w => w.id === id ? { ...w, size } : w) }));
   const handleResizeChart = (id: string, size: WidgetSize) => updateActiveDashboard(d => ({ ...d, chartWidgets: d.chartWidgets.map(w => w.id === id ? { ...w, size } : w) }));
 
-  const handleMoveSection = (id: string, position: { x: number; y: number }) => updateActiveDashboard(d => ({ ...d, sectionWidgets: d.sectionWidgets.map(w => w.id === id ? { ...w, position } : w) }));
-  const handleMoveTable = (id: string, position: { x: number; y: number }) => updateActiveDashboard(d => ({ ...d, tableWidgets: d.tableWidgets.map(w => w.id === id ? { ...w, position } : w) }));
-  const handleMoveChart = (id: string, position: { x: number; y: number }) => updateActiveDashboard(d => ({ ...d, chartWidgets: d.chartWidgets.map(w => w.id === id ? { ...w, position } : w) }));
-
   const handleChartColorChange = (id: string, color: string) => updateActiveDashboard(d => ({ ...d, chartWidgets: d.chartWidgets.map(w => w.id === id ? { ...w, color } : w) }));
 
   const handleAddDashboard = () => {
@@ -189,21 +185,21 @@ export function DashboardPage({ navigateTo }: DashboardPageProps) {
       <h2 className="text-lg font-semibold text-gray-700 p-2 text-left">{widget.title}</h2>
     );
     return (
-      <ResizableWidget key={widget.id} id={widget.id} size={widget.size} position={widget.position} isEditMode={isEditMode} onResize={handleResizeSection} onMove={handleMoveSection} onDelete={() => handleDeleteSection(widget.id)} >
+      <ResizableWidget key={widget.id} id={widget.id} size={widget.size} isEditMode={isEditMode} onResize={handleResizeSection} onDelete={() => handleDeleteSection(widget.id)} >
         {content}
       </ResizableWidget>
     );
   };
 
   const renderTableWidget = (table: DashboardTableWidget) => (
-    <ResizableWidget key={table.id} id={table.id} size={table.size} position={table.position} isEditMode={isEditMode} onResize={handleResizeTable} onMove={handleMoveTable} onDelete={() => handleDeleteTable(table.id)} >
+    <ResizableWidget key={table.id} id={table.id} size={table.size} isEditMode={isEditMode} onResize={handleResizeTable} onDelete={() => handleDeleteTable(table.id)} >
       <TableWidget title={table.title} headers={table.headers} rows={table.rows} onEdit={() => handleEditTable(table)} />
     </ResizableWidget>
   );
 
   const renderChartWidget = (chart: DashboardChartWidget) => (
-    <ResizableWidget key={chart.id} id={chart.id} size={chart.size} position={chart.position} isEditMode={isEditMode} onResize={handleResizeChart} onMove={handleMoveChart} onDelete={() => handleDeleteChart(chart.id)} >
-      <ChartWidget title={chart.title} data={chart.data} type={chart.type} color={chart.color} size="medium" isEditMode={isEditMode} onEdit={() => handleEditChart(chart)} onColorChange={(color) => handleChartColorChange(chart.id, color)} />
+    <ResizableWidget key={chart.id} id={chart.id} size={chart.size} isEditMode={isEditMode} onResize={handleResizeChart} onDelete={() => handleDeleteChart(chart.id)} >
+      <ChartWidget title={chart.title} data={chart.data} type={chart.type} color={chart.color} isEditMode={isEditMode} onEdit={() => handleEditChart(chart)} onColorChange={(color) => handleChartColorChange(chart.id, color)} />
     </ResizableWidget>
   );
 

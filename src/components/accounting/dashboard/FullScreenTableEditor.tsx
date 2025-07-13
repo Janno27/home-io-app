@@ -20,40 +20,27 @@ interface FullScreenTableEditorProps {
 
 export function FullScreenTableEditor({ isOpen, onClose, onSave, existingData }: FullScreenTableEditorProps) {
   const [title, setTitle] = useState('');
-  const [headers, setHeaders] = useState<string[]>(['']);
-  const [cellData, setCellData] = useState<Map<string, string>>(new Map());
-  const [selectedCell, setSelectedCell] = useState<{ row: number; col: number } | null>(null);
-  const [isEditing, setIsEditing] = useState(false);
+  const [headers, setHeaders] = useState<string[]>([]);
+  const [rows, setRows] = useState<string[][]>([]);
   const tableRef = useRef<HTMLDivElement>(null);
-  const rows = 50;
 
   useEffect(() => {
-    if (existingData && isOpen) {
+    if (existingData) {
       setTitle(existingData.title);
       setHeaders(existingData.headers);
-      const newCellData = new Map<string, string>();
-      existingData.rows.forEach((row, rowIndex) => {
-        row.forEach((cell, colIndex) => {
-          newCellData.set(`${rowIndex}-${colIndex}`, cell);
-        });
-      });
-      setCellData(newCellData);
-    } else if (isOpen && !existingData) {
-      setTitle('');
-      setHeaders(['Colonne A', 'Colonne B', 'Colonne C']);
-      setCellData(new Map());
-      setSelectedCell(null);
-      setIsEditing(false);
+      setRows(existingData.rows.map(row => row.slice()));
+    } else {
+      setHeaders(['Colonne 1', 'Colonne 2']);
+      setRows(Array(10).fill(['', '']));
     }
-  }, [existingData, isOpen]);
+  }, [existingData]);
 
-  const getCellKey = (row: number, col: number) => `${row}-${col}`;
-  const getCellValue = (row: number, col: number) => cellData.get(getCellKey(row, col)) || '';
+  const getCellValue = (row: number, col: number) => rows[row][col] || '';
 
   const setCellValue = (row: number, col: number, value: string) => {
-    const newCellData = new Map(cellData);
-    newCellData.set(getCellKey(row, col), value);
-    setCellData(newCellData);
+    const newRows = [...rows];
+    newRows[row][col] = value;
+    setRows(newRows);
   };
 
   const handleHeaderChange = (index: number, value: string) => {
@@ -71,19 +58,15 @@ export function FullScreenTableEditor({ isOpen, onClose, onSave, existingData }:
 
     setHeaders(headers.filter((_, index) => index !== indexToRemove));
     
-    const newCellData = new Map<string, string>();
-    for (let r = 0; r < rows; r++) {
-      let newColIndex = 0;
+    const newRows = rows.map(row => {
+      const newRow = [];
       for (let c = 0; c < headers.length; c++) {
         if (c === indexToRemove) continue;
-        const value = cellData.get(`${r}-${c}`);
-        if (value) {
-          newCellData.set(`${r}-${newColIndex}`, value);
-        }
-        newColIndex++;
+        newRow.push(row[c]);
       }
-    }
-    setCellData(newCellData);
+      return newRow;
+    });
+    setRows(newRows);
   };
 
   const handleSave = () => {
@@ -91,7 +74,7 @@ export function FullScreenTableEditor({ isOpen, onClose, onSave, existingData }:
     const finalHeaders = headers.map(h => h.trim()).filter(h => h);
     
     const tableRows: string[][] = [];
-    for (let r = 0; r < rows; r++) {
+    for (let r = 0; r < rows.length; r++) {
       const rowData = [];
       let hasData = false;
       for (let c = 0; c < finalHeaders.length; c++) {
@@ -162,9 +145,9 @@ export function FullScreenTableEditor({ isOpen, onClose, onSave, existingData }:
               </tr>
             </thead>
             <tbody>
-              {Array.from({ length: rows }, (_, rowIndex) => (
+              {rows.map((row, rowIndex) => (
                 <tr key={rowIndex}>
-                  {headers.map((_, colIndex) => (
+                  {row.map((_, colIndex) => (
                     <td key={colIndex} className="border-r border-gray-200 p-0 h-8">
                       <Input
                         value={getCellValue(rowIndex, colIndex)}

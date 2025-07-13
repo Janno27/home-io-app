@@ -25,7 +25,6 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
     deleteNote, 
     shareNote, 
     unshareNote,
-    refreshNoteCollaborators
   } = useNotes();
   
   const [view, setView] = useState<'list' | 'editor'>('list');
@@ -194,7 +193,7 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
   }, [title, content, view]);
 
   return (
-    <DockAnimation isOpen={isOpen} onClose={onClose} originPoint={originPoint}>
+    <DockAnimation isOpen={isOpen} originPoint={originPoint}>
       <div className="flex items-center justify-end pr-4 h-full pointer-events-none">
         <div 
           className="w-80 sm:w-96 h-[65vh] bg-white/20 backdrop-blur-sm rounded-lg border border-white/20 shadow-sm overflow-hidden pointer-events-auto flex flex-col text-gray-700"

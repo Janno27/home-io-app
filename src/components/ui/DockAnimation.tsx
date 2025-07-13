@@ -2,19 +2,17 @@ import { useEffect, useState } from 'react';
 
 interface DockAnimationProps {
   isOpen: boolean;
-  onClose: () => void;
   children: React.ReactNode;
   className?: string;
   originPoint?: { x: number; y: number };
 }
 
-export function DockAnimation({ 
-  isOpen, 
-  onClose, 
-  children, 
+export const DockAnimation: React.FC<DockAnimationProps> = ({
+  isOpen,
+  children,
   className = "",
-  originPoint
-}: DockAnimationProps) {
+  originPoint,
+}) => {
   const [isVisible, setIsVisible] = useState(false);
   const [isClosing, setIsClosing] = useState(false);
 

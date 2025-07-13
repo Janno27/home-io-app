@@ -1,5 +1,5 @@
 import { useState, useRef } from 'react';
-import { Music, Clock, Plus, User, Calculator, Minus, Plus as PlusIcon, FileText, Edit3, Type, Square } from 'lucide-react';
+import { Music, Clock, Plus, User, Calculator, Minus, Plus as PlusIcon, FileText, Edit3, Type } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { BarChart, LineChart, Table } from 'lucide-react';
@@ -9,6 +9,14 @@ import { AuthModal } from '@/components/auth/AuthModal';
 
 import { useAuthContext } from '@/components/auth/AuthProvider';
 import type { Page } from '@/hooks/useNavigation';
+
+export type WidgetType = 'chart-bar' | 'chart-line' | 'table';
+
+const widgetOptions: { type: WidgetType; title: string; icon: React.ElementType }[] = [
+  { type: 'chart-bar', title: 'Graphique (Barres)', icon: BarChart },
+  { type: 'chart-line', title: 'Graphique (Courbe)', icon: LineChart },
+  { type: 'table', title: 'Tableau', icon: Table },
+];
 
 interface QuickActionsProps {
   currentPage: Page;
@@ -24,14 +32,6 @@ interface QuickActionsProps {
   onGetNotesIconPosition?: (position: { x: number; y: number }) => void;
   onGetTimerIconPosition?: (position: { x: number; y: number }) => void;
 }
-
-type WidgetType = 'chart-bar' | 'chart-line' | 'table';
-
-const widgetOptions: { type: WidgetType; title: string; icon: React.ElementType }[] = [
-  { type: 'chart-bar', title: 'Graphique (Barres)', icon: BarChart },
-  { type: 'chart-line', title: 'Graphique (Courbe)', icon: LineChart },
-  { type: 'table', title: 'Tableau', icon: Table },
-];
 
 export function QuickActions({ 
   currentPage, 

@@ -53,11 +53,6 @@ export function FullScreenSpreadsheet({ isOpen, onClose, onSave, newChartType, e
     }
   }, [existingData, isOpen, newChartType]);
 
-  // Générer les labels de colonnes (A, B, C, ...)
-  const getColumnLabel = (index: number) => {
-    return String.fromCharCode(65 + index);
-  };
-
   const getCellKey = (row: number, col: number) => `${row}-${col}`;
 
   const getCellValue = (row: number, col: number) => {
