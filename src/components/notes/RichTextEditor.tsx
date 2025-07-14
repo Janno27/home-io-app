@@ -1,4 +1,4 @@
-import { useRef, useEffect } from 'react';
+import { useRef, useEffect, useCallback, useState } from 'react';
 import { 
   Bold, 
   Italic, 
@@ -9,10 +9,8 @@ import {
   Heading2,
   Heading3,
   CheckSquare,
-  type LucideProps,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import type { ForwardRefExoticComponent, RefAttributes } from 'react';
 
 interface RichTextEditorProps {
   value: string;
@@ -23,319 +21,581 @@ interface RichTextEditorProps {
   onToggleMode?: () => void;
 }
 
-type ToolbarButton = {
-  icon: ForwardRefExoticComponent<Omit<LucideProps, "ref"> & RefAttributes<SVGSVGElement>>;
-  action: () => void;
-  title: string;
-  type?: undefined;
-};
-
-type ToolbarDivider = {
-  type: 'divider';
-  icon?: undefined;
-  action?: undefined;
-  title?: undefined;
-};
-
-type ToolbarItem = ToolbarButton | ToolbarDivider;
-
-export function RichTextEditor({ value, onChange, placeholder, className, isReadMode = true }: RichTextEditorProps) {
+export function RichTextEditor({ 
+  value, 
+  onChange, 
+  placeholder = "Commencez à écrire...", 
+  className,
+  isReadMode = false 
+}: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const isUpdatingRef = useRef(false);
+  const [activeFormats, setActiveFormats] = useState<Set<string>>(new Set());
 
-  // Fonction pour sauvegarder la position du curseur
-  const saveCursorPosition = () => {
-    const selection = window.getSelection();
-    if (!selection || !editorRef.current || selection.rangeCount === 0) return null;
+  // Détecter les formats actifs à la position du curseur
+  const updateActiveFormats = useCallback(() => {
+    if (!editorRef.current || isReadMode) return;
 
-    const range = selection.getRangeAt(0);
-    const preCaretRange = range.cloneRange();
-    preCaretRange.selectNodeContents(editorRef.current);
-    preCaretRange.setEnd(range.endContainer, range.endOffset);
+    const formats = new Set<string>();
     
-    return preCaretRange.toString().length;
-  };
-
-  // Fonction pour restaurer la position du curseur
-  const restoreCursorPosition = (position: number) => {
-    if (!editorRef.current) return;
-
-    const selection = window.getSelection();
-    if (!selection) return;
-
-    const walker = document.createTreeWalker(
-      editorRef.current,
-      NodeFilter.SHOW_TEXT,
-      null
-    );
-
-    let currentPosition = 0;
-    let node;
-    
-    while (node = walker.nextNode()) {
-      const textNode = node as Text;
-      const textLength = textNode.textContent?.length || 0;
-      
-      if (currentPosition + textLength >= position) {
-        const range = document.createRange();
-        const offset = position - currentPosition;
-        range.setStart(textNode, Math.min(offset, textLength));
-        range.setEnd(textNode, Math.min(offset, textLength));
-        
-        selection.removeAllRanges();
-        selection.addRange(range);
-        return;
-      }
-      
-      currentPosition += textLength;
+    try {
+      if (document.queryCommandState('bold')) formats.add('bold');
+      if (document.queryCommandState('italic')) formats.add('italic');
+      if (document.queryCommandState('underline')) formats.add('underline');
+      if (document.queryCommandValue('formatBlock') === 'h2') formats.add('h2');
+      if (document.queryCommandValue('formatBlock') === 'h3') formats.add('h3');
+      if (document.queryCommandState('insertUnorderedList')) formats.add('ul');
+      if (document.queryCommandState('insertOrderedList')) formats.add('ol');
+    } catch (e) {
+      // Ignorer les erreurs de queryCommand
     }
 
-    // Si on n'a pas trouvé la position exacte, placer à la fin
-    const range = document.createRange();
-    range.selectNodeContents(editorRef.current);
-    range.collapse(false);
-    selection.removeAllRanges();
-    selection.addRange(range);
-  };
+    setActiveFormats(formats);
+  }, [isReadMode]);
 
-  // Fonction pour exécuter une commande de formatage
-  const executeCommand = (command: string, value?: string) => {
-    document.execCommand(command, false, value);
-    updateContent();
-  };
-
-  // Fonction pour insérer un titre H2
-  const insertHeading2 = () => {
-    const selection = window.getSelection();
-    if (!selection || !editorRef.current) return;
-    
-    editorRef.current.focus();
-    
-    const selectedText = selection.toString().trim();
-    const headingText = selectedText || 'Titre 2';
-    
-    const headingHTML = `<h2 class="text-xl font-bold mt-4 mb-2">${headingText}</h2>`;
-    
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      const div = document.createElement('div');
-      div.innerHTML = headingHTML;
-      const fragment = document.createDocumentFragment();
-      let node;
-      while ((node = div.firstChild)) {
-        fragment.appendChild(node);
-      }
-      range.insertNode(fragment);
-    }
-    
-    updateContent();
-  };
-
-  // Fonction pour insérer un titre H3
-  const insertHeading3 = () => {
-    const selection = window.getSelection();
-    if (!selection || !editorRef.current) return;
-    
-    editorRef.current.focus();
-    
-    const selectedText = selection.toString().trim();
-    const headingText = selectedText || 'Titre 3';
-    
-    const headingHTML = `<h3 class="text-lg font-semibold mt-3 mb-2">${headingText}</h3>`;
-    
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      const div = document.createElement('div');
-      div.innerHTML = headingHTML;
-      const fragment = document.createDocumentFragment();
-      let node;
-      while ((node = div.firstChild)) {
-        fragment.appendChild(node);
-      }
-      range.insertNode(fragment);
-    }
-    
-    updateContent();
-  };
-
-  // Fonction pour insérer une checkbox (tâche)
-  const insertCheckbox = () => {
-    const selection = window.getSelection();
-    if (!selection || !editorRef.current) return;
-    
-    editorRef.current.focus();
-
-    const selectedText = selection.toString().trim();
-    if (selectedText) {
-      const lines = selectedText.split('\n').filter(line => line.trim());
-      const html = lines.map(line => 
-        `<div class="flex items-center my-1" contenteditable="true">
-           <input type="checkbox" class="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" contenteditable="false"/>
-           <span>${line.trim()}</span>
-         </div>`
-      ).join('');
-      document.execCommand('insertHTML', false, html);
-    } else {
-      const checkboxHTML = 
-       `<div class="flex items-center my-1" contenteditable="true">
-          <input type="checkbox" class="mr-2 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer" contenteditable="false"/>
-          <span>&nbsp;</span>
-        </div>`;
-      document.execCommand('insertHTML', false, checkboxHTML);
-    }
-    updateContent();
-  };
-
-  // Fonction pour insérer une liste à puces
-  const insertBulletList = () => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString();
-      
-      if (selectedText) {
-        // Si du texte est sélectionné, le transformer en liste
-        const listItems = selectedText.split('\n').filter(line => line.trim())
-          .map(line => `<li>${line.trim()}</li>`).join('');
-        const listHTML = `<ul class="list-disc ml-6 my-2">${listItems}</ul>`;
-        range.deleteContents();
-        const div = document.createElement('div');
-        div.innerHTML = listHTML;
-        const fragment = document.createDocumentFragment();
-        let node;
-        while ((node = div.firstChild)) {
-          fragment.appendChild(node);
-        }
-        range.insertNode(fragment);
-      } else {
-        // Insérer une nouvelle liste
-        const listHTML = '<ul class="list-disc ml-6 my-2"><li>Élément de liste</li></ul>';
-        insertHTML(listHTML);
-      }
-    }
-    updateContent();
-  };
-
-  // Fonction pour insérer une liste numérotée
-  const insertNumberedList = () => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      const selectedText = selection.toString();
-      
-      if (selectedText) {
-        // Si du texte est sélectionné, le transformer en liste
-        const listItems = selectedText.split('\n').filter(line => line.trim())
-          .map(line => `<li>${line.trim()}</li>`).join('');
-        const listHTML = `<ol class="list-decimal ml-6 my-2">${listItems}</ol>`;
-        range.deleteContents();
-        const div = document.createElement('div');
-        div.innerHTML = listHTML;
-        const fragment = document.createDocumentFragment();
-        let node;
-        while ((node = div.firstChild)) {
-          fragment.appendChild(node);
-        }
-        range.insertNode(fragment);
-      } else {
-        // Insérer une nouvelle liste
-        const listHTML = '<ol class="list-decimal ml-6 my-2"><li>Élément numéroté</li></ol>';
-        insertHTML(listHTML);
-      }
-    }
-    updateContent();
-  };
-
-  // Fonction pour insérer du HTML à la position du curseur
-  const insertHTML = (html: string) => {
-    const selection = window.getSelection();
-    if (selection && selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      range.deleteContents();
-      const div = document.createElement('div');
-      div.innerHTML = html;
-      const fragment = document.createDocumentFragment();
-      let node;
-      while ((node = div.firstChild)) {
-        fragment.appendChild(node);
-      }
-      range.insertNode(fragment);
-      selection.removeAllRanges();
-      selection.addRange(range);
-    }
-    updateContent();
-  };
-
-
-
-  // Mettre à jour le contenu
-  const updateContent = () => {
+  // Mettre à jour le contenu de l'éditeur
+  const updateContent = useCallback(() => {
     if (editorRef.current && !isUpdatingRef.current) {
-      const content = editorRef.current.innerHTML;
-      onChange(content);
+      const htmlContent = editorRef.current.innerHTML;
+      onChange(htmlContent);
     }
-  };
+  }, [onChange]);
 
-  // Mettre à jour l'éditeur quand la valeur change (uniquement si différente)
-  useEffect(() => {
-    if (editorRef.current && editorRef.current.innerHTML !== value && !isUpdatingRef.current) {
-      const cursorPosition = saveCursorPosition();
+  // Sauvegarder et restaurer la position du curseur
+  const saveSelection = useCallback(() => {
+    if (!editorRef.current || isReadMode) return null;
+    
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return null;
+    
+    try {
+      const range = selection.getRangeAt(0);
+      const preSelectionRange = range.cloneRange();
+      preSelectionRange.selectNodeContents(editorRef.current);
+      preSelectionRange.setEnd(range.startContainer, range.startOffset);
+      const start = preSelectionRange.toString().length;
       
-      isUpdatingRef.current = true;
-      editorRef.current.innerHTML = value;
-      
-      // Restaurer la position du curseur après la mise à jour
-      if (cursorPosition !== null && !isReadMode) {
-        setTimeout(() => {
-          restoreCursorPosition(cursorPosition);
-          isUpdatingRef.current = false;
-        }, 0);
-      } else {
-        isUpdatingRef.current = false;
-      }
-    }
-  }, [value, isReadMode]);
-
-  // S'assurer que le contenu est chargé quand on passe en mode édition
-  useEffect(() => {
-    if (!isReadMode && editorRef.current) {
-      // Attendre que l'éditeur soit rendu puis mettre à jour le contenu
-      setTimeout(() => {
-        if (editorRef.current && editorRef.current.innerHTML !== value && !isUpdatingRef.current) {
-          isUpdatingRef.current = true;
-          editorRef.current.innerHTML = value;
-          isUpdatingRef.current = false;
-        }
-      }, 0);
+      return {
+        start,
+        end: start + range.toString().length
+      };
+    } catch (e) {
+      return null;
     }
   }, [isReadMode]);
 
-  const toolbarButtons: ToolbarItem[] = [
-    { icon: Bold, action: () => executeCommand('bold'), title: 'Gras' },
-    { icon: Italic, action: () => executeCommand('italic'), title: 'Italique' },
-    { icon: Underline, action: () => executeCommand('underline'), title: 'Souligné' },
-    { icon: Code, action: () => executeCommand('formatBlock', 'pre'), title: 'Code' },
-    { type: 'divider' },
-    { icon: Heading2, action: insertHeading2, title: 'Titre 2' },
-    { icon: Heading3, action: insertHeading3, title: 'Titre 3' },
-    { type: 'divider' },
-    { icon: List, action: insertBulletList, title: 'Liste à puces' },
-    { icon: ListOrdered, action: insertNumberedList, title: 'Liste numérotée' },
-    { icon: CheckSquare, action: insertCheckbox, title: 'Case à cocher' },
+  const restoreSelection = useCallback((savedSelection: { start: number; end: number } | null) => {
+    if (!savedSelection || !editorRef.current || isReadMode) return;
+    
+    try {
+      const selection = window.getSelection();
+      if (!selection) return;
+      
+      const range = document.createRange();
+      let charIndex = 0;
+      let nodeStack: Node[] = [editorRef.current];
+      let node: Node | undefined;
+      let foundStart = false;
+      let stop = false;
+      
+      while (!stop && (node = nodeStack.pop())) {
+        if (node.nodeType === Node.TEXT_NODE) {
+          const nextCharIndex = charIndex + (node.textContent?.length || 0);
+          if (!foundStart && savedSelection.start >= charIndex && savedSelection.start <= nextCharIndex) {
+            range.setStart(node, savedSelection.start - charIndex);
+            foundStart = true;
+          }
+          if (foundStart && savedSelection.end >= charIndex && savedSelection.end <= nextCharIndex) {
+            range.setEnd(node, savedSelection.end - charIndex);
+            stop = true;
+          }
+          charIndex = nextCharIndex;
+        } else {
+          let i = node.childNodes.length;
+          while (i--) {
+            nodeStack.push(node.childNodes[i]);
+          }
+        }
+      }
+      
+      selection.removeAllRanges();
+      selection.addRange(range);
+    } catch (e) {
+      // Ignorer les erreurs de restauration
+    }
+  }, [isReadMode]);
+
+  // Synchroniser le contenu avec la prop value
+  useEffect(() => {
+    if (editorRef.current && editorRef.current.innerHTML !== value && !isUpdatingRef.current) {
+      // Sauvegarder la position du curseur avant la mise à jour
+      const savedSelection = saveSelection();
+      
+      isUpdatingRef.current = true;
+      editorRef.current.innerHTML = value || '';
+      isUpdatingRef.current = false;
+      
+      // Restaurer la position du curseur après la mise à jour
+      if (savedSelection && !isReadMode) {
+        setTimeout(() => restoreSelection(savedSelection), 0);
+      }
+    }
+  }, [value, saveSelection, restoreSelection, isReadMode]);
+
+  // Focus automatique en mode édition
+  useEffect(() => {
+    if (!isReadMode && editorRef.current) {
+      editorRef.current.focus();
+    }
+  }, [isReadMode]);
+
+  // Exécuter une commande de formatage
+  const executeCommand = useCallback((command: string, value?: string) => {
+    if (!editorRef.current) return;
+    
+    editorRef.current.focus();
+    document.execCommand(command, false, value);
+    updateContent();
+  }, [updateContent]);
+
+  // Fonctions de formatage
+  const formatBold = useCallback(() => {
+    executeCommand('bold');
+  }, [executeCommand]);
+
+  const formatItalic = useCallback(() => {
+    executeCommand('italic');
+  }, [executeCommand]);
+
+  const formatUnderline = useCallback(() => {
+    executeCommand('underline');
+  }, [executeCommand]);
+
+  const formatCode = useCallback(() => {
+    const selection = window.getSelection();
+    if (!selection || !editorRef.current) return;
+
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      const selectedText = selection.toString();
+      
+      if (selectedText) {
+        const codeElement = document.createElement('code');
+        codeElement.style.backgroundColor = '#f3f4f6';
+        codeElement.style.padding = '0.25rem 0.5rem';
+        codeElement.style.borderRadius = '0.25rem';
+        codeElement.style.fontFamily = 'monospace';
+        codeElement.style.fontSize = '0.875rem';
+        codeElement.style.color = '#1f2937';
+        codeElement.style.border = '1px solid #d1d5db';
+        codeElement.textContent = selectedText;
+        
+        range.deleteContents();
+        range.insertNode(codeElement);
+        
+        // Placer le curseur après l'élément code
+        range.setStartAfter(codeElement);
+        range.setEndAfter(codeElement);
+        selection.removeAllRanges();
+        selection.addRange(range);
+        
+        updateContent();
+      }
+    }
+  }, [updateContent]);
+
+  const formatHeading2 = useCallback(() => {
+    executeCommand('formatBlock', 'h2');
+    // Appliquer les styles après la commande
+    setTimeout(() => {
+      if (editorRef.current) {
+        const h2Elements = editorRef.current.querySelectorAll('h2');
+        h2Elements.forEach(h2 => {
+          (h2 as HTMLElement).style.fontSize = '1.5rem';
+          (h2 as HTMLElement).style.fontWeight = 'bold';
+          (h2 as HTMLElement).style.color = '#1f2937';
+          (h2 as HTMLElement).style.margin = '1.5rem 0 1rem 0';
+          (h2 as HTMLElement).style.lineHeight = '1.3';
+        });
+        updateContent();
+      }
+    }, 0);
+  }, [executeCommand, updateContent]);
+
+  const formatHeading3 = useCallback(() => {
+    executeCommand('formatBlock', 'h3');
+    // Appliquer les styles après la commande
+    setTimeout(() => {
+      if (editorRef.current) {
+        const h3Elements = editorRef.current.querySelectorAll('h3');
+        h3Elements.forEach(h3 => {
+          (h3 as HTMLElement).style.fontSize = '1.25rem';
+          (h3 as HTMLElement).style.fontWeight = '600';
+          (h3 as HTMLElement).style.color = '#1f2937';
+          (h3 as HTMLElement).style.margin = '1rem 0 0.75rem 0';
+          (h3 as HTMLElement).style.lineHeight = '1.3';
+        });
+        updateContent();
+      }
+    }, 0);
+  }, [executeCommand, updateContent]);
+
+  const formatBulletList = useCallback(() => {
+    executeCommand('insertUnorderedList');
+    // Appliquer les styles après la commande
+    setTimeout(() => {
+      if (editorRef.current) {
+        const ulElements = editorRef.current.querySelectorAll('ul');
+        ulElements.forEach(ul => {
+          (ul as HTMLElement).style.marginLeft = '1.5rem';
+          (ul as HTMLElement).style.marginTop = '0.5rem';
+          (ul as HTMLElement).style.marginBottom = '0.5rem';
+        });
+        const liElements = editorRef.current.querySelectorAll('ul li');
+        liElements.forEach(li => {
+          (li as HTMLElement).style.listStyleType = 'disc';
+          (li as HTMLElement).style.color = '#374151';
+          (li as HTMLElement).style.lineHeight = '1.5';
+          (li as HTMLElement).style.marginBottom = '0.25rem';
+        });
+        updateContent();
+      }
+    }, 0);
+  }, [executeCommand, updateContent]);
+
+  const formatNumberedList = useCallback(() => {
+    executeCommand('insertOrderedList');
+    // Appliquer les styles après la commande
+    setTimeout(() => {
+      if (editorRef.current) {
+        const olElements = editorRef.current.querySelectorAll('ol');
+        olElements.forEach(ol => {
+          (ol as HTMLElement).style.marginLeft = '1.5rem';
+          (ol as HTMLElement).style.marginTop = '0.5rem';
+          (ol as HTMLElement).style.marginBottom = '0.5rem';
+        });
+        const liElements = editorRef.current.querySelectorAll('ol li');
+        liElements.forEach(li => {
+          (li as HTMLElement).style.listStyleType = 'decimal';
+          (li as HTMLElement).style.color = '#374151';
+          (li as HTMLElement).style.lineHeight = '1.5';
+          (li as HTMLElement).style.marginBottom = '0.25rem';
+        });
+        updateContent();
+      }
+    }, 0);
+  }, [executeCommand, updateContent]);
+
+  const formatCheckbox = useCallback(() => {
+    const selection = window.getSelection();
+    if (!selection || !editorRef.current) return;
+
+    if (selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
+      
+      // Créer la structure de checkbox avec un ID unique
+      const checkboxId = `checkbox-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+      
+      const checkboxDiv = document.createElement('div');
+      checkboxDiv.className = 'checkbox-container';
+      checkboxDiv.setAttribute('data-checkbox-id', checkboxId);
+      
+      // Créer le HTML de la checkbox de manière plus simple
+      checkboxDiv.innerHTML = `
+        <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin: 0.5rem 0; width: 100%; max-width: 100%;">
+          <input 
+            type="checkbox" 
+            data-checkbox-id="${checkboxId}"
+            style="width: 1rem; height: 1rem; margin-top: 0.125rem; border-radius: 0.25rem; flex-shrink: 0;"
+          />
+          <span 
+            contenteditable="${!isReadMode}"
+            data-checkbox-text="${checkboxId}"
+            style="flex: 1; word-wrap: break-word; white-space: pre-wrap; overflow-wrap: break-word; color: #374151; line-height: 1.5; outline: none;"
+          >Nouvelle tâche</span>
+        </div>
+      `;
+      
+      range.deleteContents();
+      range.insertNode(checkboxDiv);
+      
+      // Focus sur le span pour l'édition si on n'est pas en mode lecture
+      if (!isReadMode) {
+        const span = checkboxDiv.querySelector(`[data-checkbox-text="${checkboxId}"]`) as HTMLElement;
+        if (span) {
+          const newRange = document.createRange();
+          newRange.selectNodeContents(span);
+          selection.removeAllRanges();
+          selection.addRange(newRange);
+        }
+      }
+      
+      updateContent();
+    }
+  }, [updateContent, isReadMode]);
+
+  // Gestionnaire de raccourcis clavier
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Gestion spéciale de la touche Entrée dans les checkboxes
+    if (e.key === 'Enter') {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const container = range.commonAncestorContainer;
+        const checkboxSpan = (container.nodeType === Node.TEXT_NODE ? container.parentElement : container) as HTMLElement;
+        
+        // Si on est dans un span de checkbox
+        if (checkboxSpan && checkboxSpan.hasAttribute('data-checkbox-text')) {
+          e.preventDefault();
+          
+          // Créer une nouvelle ligne après le conteneur de la checkbox
+          const checkboxContainer = checkboxSpan.closest('.checkbox-container');
+          if (checkboxContainer) {
+            const br = document.createElement('br');
+            const p = document.createElement('p');
+            p.style.color = '#374151';
+            p.style.lineHeight = '1.6';
+            p.style.margin = '0.5rem 0';
+            p.style.textAlign = 'left';
+            p.appendChild(br);
+            
+            checkboxContainer.parentNode?.insertBefore(p, checkboxContainer.nextSibling);
+            
+            // Placer le curseur dans le nouveau paragraphe
+            const newRange = document.createRange();
+            newRange.setStart(p, 0);
+            newRange.setEnd(p, 0);
+            selection.removeAllRanges();
+            selection.addRange(newRange);
+            
+            updateContent();
+            return;
+          }
+        }
+      }
+    }
+    
+    // Raccourcis clavier standards
+    if (e.ctrlKey || e.metaKey) {
+      switch (e.key) {
+        case 'b':
+          e.preventDefault();
+          formatBold();
+          break;
+        case 'i':
+          e.preventDefault();
+          formatItalic();
+          break;
+        case 'u':
+          e.preventDefault();
+          formatUnderline();
+          break;
+        default:
+          break;
+      }
+    }
+  }, [formatBold, formatItalic, formatUnderline, updateContent]);
+
+  // Appliquer les styles de base aux éléments
+  const applyBaseStyles = useCallback(() => {
+    if (!editorRef.current) return;
+
+    // Style pour les paragraphes
+    const pElements = editorRef.current.querySelectorAll('p');
+    pElements.forEach(p => {
+      (p as HTMLElement).style.color = '#374151';
+      (p as HTMLElement).style.lineHeight = '1.6';
+      (p as HTMLElement).style.margin = '0.5rem 0';
+      (p as HTMLElement).style.textAlign = 'left';
+    });
+
+    // Style pour le texte en gras
+    const strongElements = editorRef.current.querySelectorAll('strong, b');
+    strongElements.forEach(strong => {
+      (strong as HTMLElement).style.fontWeight = 'bold';
+      (strong as HTMLElement).style.color = '#1f2937';
+    });
+
+    // Style pour le texte en italique
+    const emElements = editorRef.current.querySelectorAll('em, i');
+    emElements.forEach(em => {
+      (em as HTMLElement).style.fontStyle = 'italic';
+      (em as HTMLElement).style.color = '#374151';
+    });
+
+    // Style pour le texte souligné
+    const uElements = editorRef.current.querySelectorAll('u');
+    uElements.forEach(u => {
+      (u as HTMLElement).style.textDecoration = 'underline';
+      (u as HTMLElement).style.color = '#374151';
+    });
+
+    // Gérer les checkboxes existantes de manière plus fiable
+    const checkboxes = editorRef.current.querySelectorAll('input[type="checkbox"][data-checkbox-id]');
+    checkboxes.forEach(checkbox => {
+      const input = checkbox as HTMLInputElement;
+      const checkboxId = input.getAttribute('data-checkbox-id');
+      if (!checkboxId) return;
+      
+      const span = editorRef.current!.querySelector(`[data-checkbox-text="${checkboxId}"]`) as HTMLElement;
+      if (!span) return;
+      
+      // Synchroniser l'état visuel avec l'état de la checkbox
+      const isChecked = input.hasAttribute('checked') || input.checked;
+      
+      if (isChecked) {
+        span.style.textDecoration = 'line-through';
+        span.style.color = '#6b7280';
+        input.checked = true;
+      } else {
+        span.style.textDecoration = 'none';
+        span.style.color = '#374151';
+        input.checked = false;
+      }
+      
+      // Gérer l'édition selon le mode
+      span.contentEditable = isReadMode ? 'false' : 'true';
+      span.style.cursor = isReadMode ? 'default' : 'text';
+      span.style.outline = 'none';
+      
+      // S'assurer que les styles de base sont appliqués
+      span.style.flex = '1';
+      span.style.wordWrap = 'break-word';
+      span.style.whiteSpace = 'pre-wrap';
+      span.style.overflowWrap = 'break-word';
+             span.style.lineHeight = '1.5';
+     });
+   }, [isReadMode]);
+
+  // Gestionnaire universel de checkbox
+  const handleCheckboxChange = useCallback((checkbox: HTMLInputElement) => {
+    const checkboxId = checkbox.getAttribute('data-checkbox-id');
+    if (!checkboxId) return;
+    
+    const span = document.querySelector(`[data-checkbox-text="${checkboxId}"]`) as HTMLElement;
+    if (!span) return;
+    
+    // Appliquer le style selon l'état
+    if (checkbox.checked) {
+      span.style.textDecoration = 'line-through';
+      span.style.color = '#6b7280';
+      checkbox.setAttribute('checked', 'checked');
+    } else {
+      span.style.textDecoration = 'none';
+      span.style.color = '#374151';
+      checkbox.removeAttribute('checked');
+    }
+    
+    updateContent();
+  }, [updateContent]);
+
+  // Gestionnaire de clic pour les checkboxes existantes
+  const handleEditorClick = useCallback((e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    
+    // Si on clique sur une checkbox
+    if (target instanceof HTMLInputElement && target.type === 'checkbox') {
+      e.stopPropagation();
+      // Délai pour laisser le checkbox se mettre à jour naturellement
+      setTimeout(() => {
+        handleCheckboxChange(target);
+      }, 0);
+      return;
+    }
+    
+    // Mettre à jour les formats actifs après un clic (seulement en mode édition)
+    if (!isReadMode) {
+      setTimeout(updateActiveFormats, 0);
+    }
+  }, [handleCheckboxChange, updateActiveFormats, isReadMode]);
+
+  // Gestionnaire de changement de sélection
+  const handleSelectionChange = useCallback(() => {
+    if (editorRef.current && document.activeElement === editorRef.current) {
+      updateActiveFormats();
+    }
+  }, [updateActiveFormats]);
+
+  // Gestionnaire d'input avec debounce pour éviter les mises à jour trop fréquentes
+  const handleInput = useCallback(() => {
+    if (isUpdatingRef.current) return;
+    
+    // Délai pour éviter les conflits avec la saisie
+    setTimeout(() => {
+      applyBaseStyles();
+      updateContent();
+      updateActiveFormats();
+    }, 0);
+  }, [applyBaseStyles, updateContent, updateActiveFormats]);
+
+  // Appliquer les styles après chaque mise à jour
+  useEffect(() => {
+    applyBaseStyles();
+  }, [value, applyBaseStyles, isReadMode]);
+
+  // Ajouter l'event listener pour les changements de sélection
+  useEffect(() => {
+    if (!isReadMode) {
+      document.addEventListener('selectionchange', handleSelectionChange);
+      return () => {
+        document.removeEventListener('selectionchange', handleSelectionChange);
+      };
+    }
+  }, [isReadMode, handleSelectionChange]);
+
+  // Mettre à jour les checkboxes lors du changement de mode
+  useEffect(() => {
+    if (editorRef.current) {
+      // Forcer la mise à jour des styles des checkboxes
+      applyBaseStyles();
+      
+      // Ajouter les event listeners pour les checkboxes
+      const checkboxes = editorRef.current.querySelectorAll('input[type="checkbox"][data-checkbox-id]');
+      const listeners: Array<{ element: HTMLInputElement; handler: () => void }> = [];
+      
+      checkboxes.forEach(checkbox => {
+        const input = checkbox as HTMLInputElement;
+        const handler = () => handleCheckboxChange(input);
+        
+        input.addEventListener('change', handler);
+        listeners.push({ element: input, handler });
+      });
+      
+      // Nettoyage des event listeners
+      return () => {
+        listeners.forEach(({ element, handler }) => {
+          element.removeEventListener('change', handler);
+        });
+      };
+    }
+  }, [isReadMode, value, applyBaseStyles, handleCheckboxChange]);
+
+  const toolbarButtons = [
+    { icon: Bold, action: formatBold, title: 'Gras (Ctrl+B)', format: 'bold' },
+    { icon: Italic, action: formatItalic, title: 'Italique (Ctrl+I)', format: 'italic' },
+    { icon: Underline, action: formatUnderline, title: 'Souligné (Ctrl+U)', format: 'underline' },
+    { icon: Code, action: formatCode, title: 'Code' },
+    { type: 'divider' as const },
+    { icon: Heading2, action: formatHeading2, title: 'Titre 2', format: 'h2' },
+    { icon: Heading3, action: formatHeading3, title: 'Titre 3', format: 'h3' },
+    { type: 'divider' as const },
+    { icon: List, action: formatBulletList, title: 'Liste à puces', format: 'ul' },
+    { icon: ListOrdered, action: formatNumberedList, title: 'Liste numérotée', format: 'ol' },
+    { icon: CheckSquare, action: formatCheckbox, title: 'Case à cocher' },
   ];
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
-      {/* Sticky Toolbar */}
+      {/* Toolbar - uniquement en mode édition */}
       {!isReadMode && (
-        <div className="flex-shrink-0 sticky top-0 z-10 flex items-center p-2 border-b border-white/10 bg-white/15 rounded-t-lg backdrop-blur-sm">
+        <div className="flex-shrink-0 p-2 border-b border-white/10 bg-white/5 rounded-t-lg backdrop-blur-sm">
           <div className="flex items-center space-x-1">
             {toolbarButtons.map((button, index) => {
               if (button.type === 'divider') {
                 return <div key={index} className="h-6 w-px bg-white/20 mx-1"></div>;
               }
+              const IconComponent = button.icon;
+              const isActive = button.format && activeFormats.has(button.format);
               return (
                 <Button
                   key={index}
@@ -343,56 +603,49 @@ export function RichTextEditor({ value, onChange, placeholder, className, isRead
                   size="sm"
                   onClick={button.action}
                   onMouseDown={(e) => e.preventDefault()}
-                  className="h-8 w-8 p-0 hover:bg-white/20 text-gray-500 hover:text-gray-700 flex-shrink-0"
+                  className={`h-8 w-8 p-0 flex-shrink-0 transition-colors ${
+                    isActive 
+                      ? 'bg-blue-500/20 text-blue-600 hover:bg-blue-500/30' 
+                      : 'hover:bg-white/20 text-gray-500 hover:text-gray-700'
+                  }`}
                   title={button.title}
                 >
-                  <button.icon className="w-4 h-4" />
+                  <IconComponent className="w-4 h-4" />
                 </Button>
-              )
+              );
             })}
           </div>
         </div>
       )}
 
-      {/* Editor/Reader Container */}
-              <div className="flex-1 relative overflow-hidden bg-white/10 rounded-b-lg">
-        {isReadMode ? (
-          // Mode lecture
-          <div className="h-full w-full p-4 overflow-y-auto">
-            {value ? (
-              <div 
-                className="prose prose-sm prose-invert max-w-none leading-relaxed"
-                style={{ 
-                  textAlign: 'left'
-                }}
-                dangerouslySetInnerHTML={{ __html: value }}
-              />
-            ) : (
-              <div className="text-gray-500 italic text-xs">
-                {placeholder || 'Aucun contenu à afficher'}
-              </div>
-            )}
+      {/* Zone d'édition WYSIWYG */}
+      <div className="flex-1 relative bg-white/5 rounded-b-lg overflow-hidden">
+        <div
+          ref={editorRef}
+          contentEditable={!isReadMode}
+          suppressContentEditableWarning
+          onInput={handleInput}
+          onKeyDown={handleKeyDown}
+          onClick={handleEditorClick}
+          className="h-full w-full p-4 focus:outline-none overflow-y-auto text-sm leading-relaxed"
+          style={{
+            color: '#374151',
+            minHeight: '200px',
+            textAlign: 'left',
+            wordWrap: 'break-word',
+            overflowWrap: 'break-word',
+          }}
+          data-placeholder={placeholder}
+        />
+        
+        {/* Placeholder quand vide */}
+        {!value && !isReadMode && (
+          <div 
+            className="absolute top-4 left-4 text-gray-400 pointer-events-none text-sm"
+            style={{ zIndex: 1 }}
+          >
+            {placeholder}
           </div>
-        ) : (
-          // Mode édition
-          <>
-            <div
-              ref={editorRef}
-              contentEditable
-              suppressContentEditableWarning
-              onInput={updateContent}
-              className="prose prose-sm prose-invert max-w-none h-full w-full p-4 focus:outline-none overflow-y-auto resize-none"
-              style={{ 
-                minHeight: '200px',
-                textAlign: 'left',
-              }}
-            />
-            {(!value || value === '') && (
-              <div className="absolute top-4 left-4 text-gray-500 pointer-events-none text-xs">
-                {placeholder}
-              </div>
-            )}
-          </>
         )}
       </div>
     </div>
