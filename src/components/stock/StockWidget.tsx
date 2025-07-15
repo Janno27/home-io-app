@@ -1,4 +1,4 @@
-import { TrendingUp, Bitcoin, PiggyBank } from 'lucide-react';
+import { TrendingUp, PiggyBank } from 'lucide-react';
 import { useAccounting } from '@/hooks/useAccounting';
 import { useEffect, useState } from 'react';
 import { supabase } from '@/lib/supabase';
@@ -158,14 +158,6 @@ export function StockWidget({ navigateTo }: StockWidgetProps) {
       )}
 
       {/* Bitcoin (existant) */}
-      <div className="flex items-center space-x-2 p-2 px-3">
-        <Bitcoin className="w-4 h-4 text-orange-500" />
-        <span className="text-sm font-medium text-gray-700">$108,890</span>
-        <span className="text-xs text-red-500 flex items-center">
-          <TrendingUp className="w-3 h-3 mr-1" />
-          +5.3%
-        </span>
-      </div>
     </div>
   );
 }

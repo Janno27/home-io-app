@@ -349,7 +349,6 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
                       <RichTextEditor
                         value={content}
                         onChange={setContent}
-                        isReadMode={false}
                         placeholder="Commencez à écrire..."
                       />
                     )}

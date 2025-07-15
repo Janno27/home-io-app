@@ -5,6 +5,7 @@ import { QuickActions } from '@/components/quick-actions/QuickActions';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import type { Page } from '@/hooks/useNavigation';
+import { WeatherData } from '@/components/weather/types';
 
 interface HeaderProps {
   currentPage: Page;
@@ -19,6 +20,10 @@ interface HeaderProps {
   showTimer?: boolean;
   onGetNotesIconPosition?: (position: { x: number; y: number }) => void;
   onGetTimerIconPosition?: (position: { x: number; y: number }) => void;
+  onOpenWeatherDetail: (point: { x: number; y: number }) => void;
+  weatherData: WeatherData | null;
+  weatherLoading: boolean;
+  weatherError: string | null;
 }
 
 export function Header({ 
@@ -33,7 +38,11 @@ export function Header({
   showQuickNotes,
   showTimer,
   onGetNotesIconPosition,
-  onGetTimerIconPosition
+  onGetTimerIconPosition,
+  onOpenWeatherDetail,
+  weatherData,
+  weatherLoading,
+  weatherError,
 }: HeaderProps) {
   return (
     <header className="flex-shrink-0 w-full px-6 py-4 backdrop-blur-sm bg-white/5 border-b border-white/10 transition-all duration-200 ease-out">
@@ -41,7 +50,12 @@ export function Header({
         <div className="transition-all duration-200 ease-out">
           {currentPage === 'home' ? (
             <WidgetContainer className="flex items-center space-x-4">
-              <WeatherWidget />
+              <WeatherWidget
+                onOpen={onOpenWeatherDetail}
+                weatherData={weatherData}
+                loading={weatherLoading}
+                error={weatherError}
+              />
               <StockWidget navigateTo={navigateTo} />
             </WidgetContainer>
           ) : (

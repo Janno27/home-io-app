@@ -45,7 +45,7 @@ export const DockAnimation: React.FC<DockAnimationProps> = ({
 
   return (
     <div 
-      className={`fixed inset-0 z-[9998] ${className}`}
+      className={`fixed inset-0 z-[10000] ${className}`}
       style={{ pointerEvents: 'none' }}
     >
       <div

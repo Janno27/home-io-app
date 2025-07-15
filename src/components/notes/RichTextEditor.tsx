@@ -17,16 +17,13 @@ interface RichTextEditorProps {
   onChange: (value: string) => void;
   placeholder?: string;
   className?: string;
-  isReadMode?: boolean;
-  onToggleMode?: () => void;
 }
 
 export function RichTextEditor({ 
   value, 
   onChange, 
   placeholder = "Commencez à écrire...", 
-  className,
-  isReadMode = false 
+  className
 }: RichTextEditorProps) {
   const editorRef = useRef<HTMLDivElement>(null);
   const isUpdatingRef = useRef(false);
@@ -34,7 +31,7 @@ export function RichTextEditor({
 
   // Détecter les formats actifs à la position du curseur
   const updateActiveFormats = useCallback(() => {
-    if (!editorRef.current || isReadMode) return;
+    if (!editorRef.current) return;
 
     const formats = new Set<string>();
     
@@ -51,7 +48,7 @@ export function RichTextEditor({
     }
 
     setActiveFormats(formats);
-  }, [isReadMode]);
+  }, []);
 
   // Mettre à jour le contenu de l'éditeur
   const updateContent = useCallback(() => {
@@ -63,13 +60,13 @@ export function RichTextEditor({
 
   // Sauvegarder et restaurer la position du curseur
   const saveSelection = useCallback(() => {
-    if (!editorRef.current || isReadMode) return null;
+    if (!editorRef.current) return null;
     
     const selection = window.getSelection();
     if (!selection || selection.rangeCount === 0) return null;
-    
+
     try {
-      const range = selection.getRangeAt(0);
+    const range = selection.getRangeAt(0);
       const preSelectionRange = range.cloneRange();
       preSelectionRange.selectNodeContents(editorRef.current);
       preSelectionRange.setEnd(range.startContainer, range.startOffset);
@@ -82,15 +79,15 @@ export function RichTextEditor({
     } catch (e) {
       return null;
     }
-  }, [isReadMode]);
+  }, []);
 
   const restoreSelection = useCallback((savedSelection: { start: number; end: number } | null) => {
-    if (!savedSelection || !editorRef.current || isReadMode) return;
+    if (!savedSelection || !editorRef.current) return;
     
     try {
-      const selection = window.getSelection();
-      if (!selection) return;
-      
+    const selection = window.getSelection();
+    if (!selection) return;
+
       const range = document.createRange();
       let charIndex = 0;
       let nodeStack: Node[] = [editorRef.current];
@@ -117,13 +114,13 @@ export function RichTextEditor({
           }
         }
       }
-      
-      selection.removeAllRanges();
-      selection.addRange(range);
+        
+        selection.removeAllRanges();
+        selection.addRange(range);
     } catch (e) {
       // Ignorer les erreurs de restauration
     }
-  }, [isReadMode]);
+  }, []);
 
   // Synchroniser le contenu avec la prop value
   useEffect(() => {
@@ -136,18 +133,18 @@ export function RichTextEditor({
       isUpdatingRef.current = false;
       
       // Restaurer la position du curseur après la mise à jour
-      if (savedSelection && !isReadMode) {
+      if (savedSelection) {
         setTimeout(() => restoreSelection(savedSelection), 0);
       }
     }
-  }, [value, saveSelection, restoreSelection, isReadMode]);
+  }, [value, saveSelection, restoreSelection]);
 
   // Focus automatique en mode édition
   useEffect(() => {
-    if (!isReadMode && editorRef.current) {
+    if (editorRef.current) {
       editorRef.current.focus();
     }
-  }, [isReadMode]);
+  }, []);
 
   // Exécuter une commande de formatage
   const executeCommand = useCallback((command: string, value?: string) => {
@@ -174,7 +171,7 @@ export function RichTextEditor({
   const formatCode = useCallback(() => {
     const selection = window.getSelection();
     if (!selection || !editorRef.current) return;
-
+    
     if (selection.rangeCount > 0) {
       const range = selection.getRangeAt(0);
       const selectedText = selection.toString();
@@ -190,7 +187,7 @@ export function RichTextEditor({
         codeElement.style.border = '1px solid #d1d5db';
         codeElement.textContent = selectedText;
         
-        range.deleteContents();
+      range.deleteContents();
         range.insertNode(codeElement);
         
         // Placer le curseur après l'élément code
@@ -281,26 +278,134 @@ export function RichTextEditor({
           (li as HTMLElement).style.lineHeight = '1.5';
           (li as HTMLElement).style.marginBottom = '0.25rem';
         });
-        updateContent();
+    updateContent();
       }
     }, 0);
   }, [executeCommand, updateContent]);
 
   const formatCheckbox = useCallback(() => {
-    const selection = window.getSelection();
-    if (!selection || !editorRef.current) return;
+    if (!editorRef.current) return;
 
-    if (selection.rangeCount > 0) {
-      const range = selection.getRangeAt(0);
-      
-      // Créer la structure de checkbox avec un ID unique
+    // Éviter de créer plusieurs inline editors
+    if (editorRef.current.querySelector('.checkbox-inline-editor')) {
+      return;
+    }
+
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+
+    const range = selection.getRangeAt(0);
+    
+    // Créer l'overlay pour le textarea
+    const overlay = document.createElement('div');
+
+    // Empêcher la propagation des clics et des touchers pour ne pas fermer la note
+    overlay.addEventListener('mousedown', e => e.stopPropagation());
+    overlay.addEventListener('touchstart', e => e.stopPropagation());
+
+    overlay.style.cssText = `
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      backdrop-filter: blur(2px);
+    `;
+
+    // Créer le conteneur du modal
+    const modal = document.createElement('div');
+
+    // Empêcher la propagation du clic pour ne pas fermer la note
+    modal.addEventListener('click', e => e.stopPropagation());
+
+    modal.style.cssText = `
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+      max-width: 400px;
+      width: 90%;
+      max-height: 300px;
+    `;
+
+    // Créer le titre
+    const title = document.createElement('h3');
+    title.textContent = 'Nouvelle case à cocher';
+    title.style.cssText = `
+      margin: 0 0 16px 0;
+      color: #1f2937;
+      font-size: 18px;
+      font-weight: 600;
+    `;
+
+    // Créer le textarea
+    const textarea = document.createElement('textarea');
+    textarea.placeholder = 'Saisissez le contenu de votre tâche...';
+    textarea.style.cssText = `
+      width: 100%;
+      min-height: 80px;
+      max-height: 120px;
+      padding: 12px;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+      line-height: 1.5;
+      color: #374151;
+      outline: none;
+      resize: vertical;
+      margin-bottom: 16px;
+    `;
+
+    // Créer les boutons
+    const buttonsContainer = document.createElement('div');
+    buttonsContainer.style.cssText = `
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    `;
+
+    const cancelButton = document.createElement('button');
+    cancelButton.textContent = 'Annuler';
+    cancelButton.style.cssText = `
+      padding: 8px 16px;
+      border: 1px solid #d1d5db;
+      background: white;
+      color: #6b7280;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+
+    const confirmButton = document.createElement('button');
+    confirmButton.textContent = 'Créer';
+    confirmButton.style.cssText = `
+      padding: 8px 16px;
+      border: none;
+      background: #3b82f6;
+      color: white;
+      border-radius: 6px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    `;
+
+    // Fonction pour créer la checkbox
+    const createCheckbox = (content: string) => {
+      if (!content.trim()) return;
+
       const checkboxId = `checkbox-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
       
       const checkboxDiv = document.createElement('div');
       checkboxDiv.className = 'checkbox-container';
       checkboxDiv.setAttribute('data-checkbox-id', checkboxId);
       
-      // Créer le HTML de la checkbox de manière plus simple
       checkboxDiv.innerHTML = `
         <div style="display: flex; align-items: flex-start; gap: 0.75rem; margin: 0.5rem 0; width: 100%; max-width: 100%;">
           <input 
@@ -309,38 +414,109 @@ export function RichTextEditor({
             style="width: 1rem; height: 1rem; margin-top: 0.125rem; border-radius: 0.25rem; flex-shrink: 0;"
           />
           <span 
-            contenteditable="${!isReadMode}"
+            contenteditable="true"
             data-checkbox-text="${checkboxId}"
             style="flex: 1; word-wrap: break-word; white-space: pre-wrap; overflow-wrap: break-word; color: #374151; line-height: 1.5; outline: none;"
-          >Nouvelle tâche</span>
+          >${content}</span>
         </div>
       `;
       
       range.deleteContents();
       range.insertNode(checkboxDiv);
       
-      // Focus sur le span pour l'édition si on n'est pas en mode lecture
-      if (!isReadMode) {
-        const span = checkboxDiv.querySelector(`[data-checkbox-text="${checkboxId}"]`) as HTMLElement;
-        if (span) {
-          const newRange = document.createRange();
-          newRange.selectNodeContents(span);
-          selection.removeAllRanges();
-          selection.addRange(newRange);
-        }
-      }
+      // Ajouter un paragraphe après la checkbox pour continuer l'édition
+      const p = document.createElement('p');
+      p.style.cssText = 'color: #374151; line-height: 1.6; margin: 0.5rem 0; text-align: left;';
+      p.innerHTML = '<br>';
+      checkboxDiv.parentNode?.insertBefore(p, checkboxDiv.nextSibling);
+      
+      // Placer le curseur dans le nouveau paragraphe
+      const newRange = document.createRange();
+      newRange.setStart(p, 0);
+      newRange.setEnd(p, 0);
+      selection.removeAllRanges();
+      selection.addRange(newRange);
       
       updateContent();
-    }
-  }, [updateContent, isReadMode]);
+      overlay.remove();
+    };
+
+    // Gestionnaires d'événements
+    const handleConfirm = () => {
+      createCheckbox(textarea.value);
+    };
+
+    const handleCancel = () => {
+      overlay.remove();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) {
+        e.preventDefault();
+        handleConfirm();
+      } else if (e.key === 'Escape') {
+        e.preventDefault();
+        handleCancel();
+      }
+    };
+
+    // Styles de survol pour les boutons
+    cancelButton.onmouseenter = () => {
+      cancelButton.style.background = '#f9fafb';
+      cancelButton.style.borderColor = '#9ca3af';
+    };
+    cancelButton.onmouseleave = () => {
+      cancelButton.style.background = 'white';
+      cancelButton.style.borderColor = '#d1d5db';
+    };
+
+    confirmButton.onmouseenter = () => {
+      confirmButton.style.background = '#2563eb';
+    };
+    confirmButton.onmouseleave = () => {
+      confirmButton.style.background = '#3b82f6';
+    };
+
+    // Ajouter les événements
+    confirmButton.onclick = handleConfirm;
+    cancelButton.onclick = handleCancel;
+    textarea.onkeydown = handleKeyDown;
+    overlay.onclick = (e) => {
+      if (e.target === overlay) handleCancel();
+    };
+
+    // Construire le modal
+    buttonsContainer.appendChild(cancelButton);
+    buttonsContainer.appendChild(confirmButton);
+    modal.appendChild(title);
+    modal.appendChild(textarea);
+    modal.appendChild(buttonsContainer);
+    overlay.appendChild(modal);
+
+    // Ajouter au DOM et focus
+    document.body.appendChild(overlay);
+    textarea.focus();
+
+    // Instructions dans le placeholder
+    const instructions = document.createElement('div');
+    instructions.textContent = 'Ctrl+Entrée pour créer, Échap pour annuler';
+    instructions.style.cssText = `
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 8px;
+      text-align: center;
+    `;
+    modal.insertBefore(instructions, buttonsContainer);
+
+  }, [updateContent]);
 
   // Gestionnaire de raccourcis clavier
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
     // Gestion spéciale de la touche Entrée dans les checkboxes
     if (e.key === 'Enter') {
-      const selection = window.getSelection();
-      if (selection && selection.rangeCount > 0) {
-        const range = selection.getRangeAt(0);
+    const selection = window.getSelection();
+    if (selection && selection.rangeCount > 0) {
+      const range = selection.getRangeAt(0);
         const container = range.commonAncestorContainer;
         const checkboxSpan = (container.nodeType === Node.TEXT_NODE ? container.parentElement : container) as HTMLElement;
         
@@ -454,8 +630,8 @@ export function RichTextEditor({
       }
       
       // Gérer l'édition selon le mode
-      span.contentEditable = isReadMode ? 'false' : 'true';
-      span.style.cursor = isReadMode ? 'default' : 'text';
+      span.contentEditable = 'true';
+      span.style.cursor = 'text';
       span.style.outline = 'none';
       
       // S'assurer que les styles de base sont appliqués
@@ -465,7 +641,7 @@ export function RichTextEditor({
       span.style.overflowWrap = 'break-word';
              span.style.lineHeight = '1.5';
      });
-   }, [isReadMode]);
+   }, []);
 
   // Gestionnaire universel de checkbox
   const handleCheckboxChange = useCallback((checkbox: HTMLInputElement) => {
@@ -503,11 +679,9 @@ export function RichTextEditor({
       return;
     }
     
-    // Mettre à jour les formats actifs après un clic (seulement en mode édition)
-    if (!isReadMode) {
-      setTimeout(updateActiveFormats, 0);
-    }
-  }, [handleCheckboxChange, updateActiveFormats, isReadMode]);
+    // Mettre à jour les formats actifs après un clic
+    setTimeout(updateActiveFormats, 0);
+  }, [handleCheckboxChange, updateActiveFormats]);
 
   // Gestionnaire de changement de sélection
   const handleSelectionChange = useCallback(() => {
@@ -531,17 +705,15 @@ export function RichTextEditor({
   // Appliquer les styles après chaque mise à jour
   useEffect(() => {
     applyBaseStyles();
-  }, [value, applyBaseStyles, isReadMode]);
+  }, [value, applyBaseStyles]);
 
   // Ajouter l'event listener pour les changements de sélection
   useEffect(() => {
-    if (!isReadMode) {
-      document.addEventListener('selectionchange', handleSelectionChange);
-      return () => {
-        document.removeEventListener('selectionchange', handleSelectionChange);
-      };
-    }
-  }, [isReadMode, handleSelectionChange]);
+    document.addEventListener('selectionchange', handleSelectionChange);
+  return () => {
+      document.removeEventListener('selectionchange', handleSelectionChange);
+  };
+  }, [handleSelectionChange]);
 
   // Mettre à jour les checkboxes lors du changement de mode
   useEffect(() => {
@@ -568,7 +740,7 @@ export function RichTextEditor({
         });
       };
     }
-  }, [isReadMode, value, applyBaseStyles, handleCheckboxChange]);
+  }, [value, applyBaseStyles, handleCheckboxChange]);
 
   const toolbarButtons = [
     { icon: Bold, action: formatBold, title: 'Gras (Ctrl+B)', format: 'bold' },
@@ -587,8 +759,7 @@ export function RichTextEditor({
   return (
     <div className={`flex flex-col h-full ${className}`}>
       {/* Toolbar - uniquement en mode édition */}
-      {!isReadMode && (
-        <div className="flex-shrink-0 p-2 border-b border-white/10 bg-white/5 rounded-t-lg backdrop-blur-sm">
+      <div className="flex-shrink-0 p-2 border-b border-white/10 bg-white/5 rounded-t-lg backdrop-blur-sm">
           <div className="flex items-center space-x-1">
             {toolbarButtons.map((button, index) => {
               if (button.type === 'divider') {
@@ -616,22 +787,21 @@ export function RichTextEditor({
             })}
           </div>
         </div>
-      )}
 
       {/* Zone d'édition WYSIWYG */}
       <div className="flex-1 relative bg-white/5 rounded-b-lg overflow-hidden">
-        <div
-          ref={editorRef}
-          contentEditable={!isReadMode}
-          suppressContentEditableWarning
+            <div
+              ref={editorRef}
+          contentEditable={true}
+              suppressContentEditableWarning
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onClick={handleEditorClick}
           className="h-full w-full p-4 focus:outline-none overflow-y-auto text-sm leading-relaxed"
-          style={{
+              style={{ 
             color: '#374151',
-            minHeight: '200px',
-            textAlign: 'left',
+                minHeight: '200px',
+                textAlign: 'left',
             wordWrap: 'break-word',
             overflowWrap: 'break-word',
           }}
@@ -639,13 +809,13 @@ export function RichTextEditor({
         />
         
         {/* Placeholder quand vide */}
-        {!value && !isReadMode && (
+        {!value && (
           <div 
             className="absolute top-4 left-4 text-gray-400 pointer-events-none text-sm"
             style={{ zIndex: 1 }}
           >
-            {placeholder}
-          </div>
+                {placeholder}
+              </div>
         )}
       </div>
     </div>

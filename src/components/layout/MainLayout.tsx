@@ -18,6 +18,8 @@ import { useAccounting } from '@/hooks/useAccounting';
 import { EvolutionPage } from '@/components/accounting/evolution';
 import { CalendarWidget } from '@/components/calendar';
 import { DashboardPage } from '@/components/accounting/dashboard';
+import { useWeather } from '@/hooks/useWeather';
+import { WeatherDetail } from '@/components/weather';
 
 export function MainLayout() {
   const { user, loading } = useAuthContext();
@@ -30,6 +32,9 @@ export function MainLayout() {
   const [musicCollapsed, setMusicCollapsed] = useState(false);
   const [notesIconPosition, setNotesIconPosition] = useState<{ x: number; y: number } | undefined>();
   const [timerIconPosition, setTimerIconPosition] = useState<{ x: number; y: number } | undefined>();
+  const [weatherIconPosition, setWeatherIconPosition] = useState<{ x: number; y: number } | undefined>();
+  const [isWeatherDetailOpen, setIsWeatherDetailOpen] = useState(false);
+  const { weatherData, loading: weatherLoading, error: weatherError } = useWeather();
 
   const handleToggleNotes = () => {
     if (showQuickNotes) {
@@ -49,6 +54,11 @@ export function MainLayout() {
       // Ouverture
       setShowTimer(true);
     }
+  };
+
+  const handleOpenWeatherDetail = (point: { x: number; y: number }) => {
+    setWeatherIconPosition(point);
+    setIsWeatherDetailOpen(true);
   };
 
   const handleMusicIconClick = () => {
@@ -102,6 +112,10 @@ export function MainLayout() {
             showTimer={showTimer}
             onGetNotesIconPosition={setNotesIconPosition}
             onGetTimerIconPosition={setTimerIconPosition}
+            onOpenWeatherDetail={handleOpenWeatherDetail}
+            weatherData={weatherData}
+            weatherLoading={weatherLoading}
+            weatherError={weatherError}
           />
           <AnimatedPageTransition currentPage={currentPage}>
             {currentPage === 'home' ? (
@@ -150,6 +164,13 @@ export function MainLayout() {
         isOpen={showTimer}
         onClose={handleToggleTimer}
         originPoint={timerIconPosition}
+      />
+      
+      <WeatherDetail
+        isOpen={isWeatherDetailOpen}
+        onClose={() => setIsWeatherDetailOpen(false)}
+        originPoint={weatherIconPosition}
+        weatherData={weatherData}
       />
       
       {musicActive && (
