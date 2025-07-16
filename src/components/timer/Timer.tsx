@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { DockAnimation } from '@/components/ui/DockAnimation';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
+import { toast } from 'sonner';
 
 interface TimerProps {
   isOpen: boolean;
@@ -21,43 +22,74 @@ export function Timer({ isOpen, onClose, originPoint }: TimerProps) {
   const widgetRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(widgetRef, onClose);
 
-  // Réinitialiser le timer quand le widget se ferme
+  // Gérer la persistance du timer avec localStorage
+  useEffect(() => {
+    // À l'initialisation, vérifier s'il y a un timer en cours
+    const storedEndTime = localStorage.getItem('timer_endTime');
+    const storedDuration = localStorage.getItem('timer_duration');
+
+    if (storedEndTime && storedDuration) {
+      // Un timer est en cours
+      const endTime = parseInt(storedEndTime, 10);
+      const now = Date.now();
+      if (now < endTime) {
+        setTimeLeft(Math.round((endTime - now) / 1000));
+        setConfigTime(parseInt(storedDuration, 10) / 60);
+        setIsRunning(true);
+      } else {
+        // Le timer est terminé
+        localStorage.removeItem('timer_endTime');
+        localStorage.removeItem('timer_duration');
+      }
+    } else {
+      // Pas de timer en cours, vérifier s'il y a un temps en pause
+      const storedTimeLeft = localStorage.getItem('timer_timeLeft');
+      if (storedTimeLeft && storedDuration) {
+        setTimeLeft(parseInt(storedTimeLeft, 10));
+        setConfigTime(parseInt(storedDuration, 10) / 60);
+        setIsRunning(false);
+      }
+    }
+  }, []);
+
+  // Ne fermer que la vue de configuration quand le widget se ferme, pas le timer
   useEffect(() => {
     if (!isOpen) {
-      setIsRunning(false);
       setIsConfiguring(false);
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
     }
   }, [isOpen]);
 
+  // Logique du décompte
   useEffect(() => {
-    if (isRunning && timeLeft > 0) {
+    if (isRunning) {
       intervalRef.current = setInterval(() => {
-        setTimeLeft(prev => {
-          if (prev <= 1) {
+        const storedEndTime = localStorage.getItem('timer_endTime');
+        if (storedEndTime) {
+          const endTime = parseInt(storedEndTime, 10);
+          const now = Date.now();
+          const remaining = Math.round((endTime - now) / 1000);
+
+          if (remaining > 0) {
+            setTimeLeft(remaining);
+          } else {
+            setTimeLeft(0);
             setIsRunning(false);
-            // Ici on pourrait ajouter une notification
-            return 0;
+            localStorage.removeItem('timer_endTime');
+            localStorage.removeItem('timer_duration');
+            localStorage.removeItem('timer_timeLeft');
+            toast.success("Le temps est écoulé !");
+            if (intervalRef.current) clearInterval(intervalRef.current);
           }
-          return prev - 1;
-        });
+        }
       }, 1000);
     } else {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-        intervalRef.current = null;
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     }
 
     return () => {
-      if (intervalRef.current) {
-        clearInterval(intervalRef.current);
-      }
+      if (intervalRef.current) clearInterval(intervalRef.current);
     };
-  }, [isRunning, timeLeft]);
+  }, [isRunning]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
@@ -66,18 +98,43 @@ export function Timer({ isOpen, onClose, originPoint }: TimerProps) {
   };
 
   const handlePlayPause = () => {
-    setIsRunning(!isRunning);
+    setIsRunning(currentIsRunning => {
+      const nextIsRunning = !currentIsRunning;
+      if (nextIsRunning) {
+        // Démarre ou reprend le timer
+        const endTime = Date.now() + timeLeft * 1000;
+        localStorage.setItem('timer_endTime', String(endTime));
+        // On garde la durée totale en mémoire
+        if (!localStorage.getItem('timer_duration')) {
+           localStorage.setItem('timer_duration', String(configTime * 60));
+        }
+        // On supprime le temps en pause s'il existait
+        localStorage.removeItem('timer_timeLeft');
+      } else {
+        // Met le timer en pause
+        localStorage.removeItem('timer_endTime');
+        // Sauvegarde le temps restant
+        localStorage.setItem('timer_timeLeft', String(timeLeft));
+      }
+      return nextIsRunning;
+    });
   };
 
   const handleReset = () => {
     setIsRunning(false);
     setTimeLeft(configTime * 60);
+    localStorage.removeItem('timer_endTime');
+    localStorage.removeItem('timer_duration');
+    localStorage.removeItem('timer_timeLeft');
   };
 
   const handleConfigSave = () => {
+    setIsRunning(false);
     setTimeLeft(configTime * 60);
     setIsConfiguring(false);
-    setIsRunning(false);
+    localStorage.removeItem('timer_endTime');
+    localStorage.removeItem('timer_duration');
+    localStorage.removeItem('timer_timeLeft');
   };
 
   const progress = ((configTime * 60) - timeLeft) / (configTime * 60) * 100;

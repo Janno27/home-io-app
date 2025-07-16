@@ -5,11 +5,16 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useAuthContext } from './AuthProvider';
 
 import { toast } from 'sonner';
-import { MainView, OrganizationsView, AccountingView } from './settings';
+import { MainView, OrganizationsView, AccountingView, AccountView } from './settings';
+import type { Page } from '@/hooks/useNavigation';
 
-export function UserMenu() {
+interface UserMenuProps {
+  currentPage: Page;
+}
+
+export function UserMenu({ currentPage }: UserMenuProps) {
   const { user, signOut } = useAuthContext();
-  const [currentView, setCurrentView] = useState<'main' | 'organizations' | 'accounting'>('main');
+  const [currentView, setCurrentView] = useState<'main' | 'organizations' | 'accounting' | 'account'>('main');
 
   const handleSignOut = async () => {
     const { error } = await signOut();
@@ -31,13 +36,19 @@ export function UserMenu() {
         return 'w-80'; // Large pour les catégories
       case 'organizations':
         return 'w-96'; // Plus large pour la gestion des organisations et membres
+      case 'account':
+        return 'w-72';
       default:
         return 'w-48'; // Compact pour le menu principal
     }
   };
 
   return (
-    <Popover>
+    <Popover onOpenChange={(open) => {
+      if (open) {
+        setCurrentView('main'); // Réinitialiser au menu principal à l'ouverture
+      }
+    }}>
       <PopoverTrigger asChild>
         <Button
           variant="ghost"
@@ -60,13 +71,18 @@ export function UserMenu() {
             userEmail={user.email || ''}
             onViewChange={setCurrentView}
             onSignOut={handleSignOut}
+            currentPage={currentPage}
           />
         ) : currentView === 'organizations' ? (
           <OrganizationsView
             onBack={() => setCurrentView('main')}
           />
-        ) : (
+        ) : currentView === 'accounting' ? (
           <AccountingView
+            onBack={() => setCurrentView('main')}
+          />
+        ) : (
+          <AccountView 
             onBack={() => setCurrentView('main')}
           />
         )}

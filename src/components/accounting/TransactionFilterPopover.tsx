@@ -5,8 +5,15 @@ import { Filter, Globe, Users, User } from 'lucide-react';
 import { useAccounting } from '@/hooks/useAccounting';
 import type { TransactionFilter as FilterType } from '@/hooks/useAccounting';
 
-export function TransactionFilterPopover() {
-  const { transactionFilter, setFilter } = useAccounting();
+interface TransactionFilterPopoverProps {
+  filter?: FilterType;
+  onFilterChange?: (filter: FilterType) => void;
+}
+
+export function TransactionFilterPopover({ filter, onFilterChange }: TransactionFilterPopoverProps) {
+  const accounting = useAccounting();
+  const transactionFilter = filter ?? accounting.transactionFilter;
+  const setFilter = onFilterChange ?? accounting.setFilter;
 
   const handleChange = async (value: string) => {
     if (!value) return;
@@ -24,7 +31,7 @@ export function TransactionFilterPopover() {
           <Filter className="w-4 h-4" />
         </Button>
       </PopoverTrigger>
-      <PopoverContent className="w-auto p-2" align="start">
+      <PopoverContent className="w-auto p-2" align="end">
         <ToggleGroup
           type="single"
           value={transactionFilter}

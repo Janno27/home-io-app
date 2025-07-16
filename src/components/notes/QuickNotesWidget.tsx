@@ -1,7 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { FileText, X, Plus, ChevronRight, ArrowLeft, Trash2, Edit3 } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
+import { FileText, Plus, ChevronRight, ArrowLeft, Trash2 } from 'lucide-react';
 import { RichTextEditor } from './RichTextEditor';
 import { ShareNoteDialog } from './ShareNoteDialog';
 import { NoteCollaborators } from './NoteCollaborators';
@@ -32,21 +30,16 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [isReadMode, setIsReadMode] = useState(true);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   const widgetRef = useRef<HTMLDivElement>(null);
   useOnClickOutside(widgetRef, onClose);
 
-  // Les notes sont maintenant gérées par le hook useNotes
-
-  // Mettre à jour le formulaire quand la note sélectionnée change
   useEffect(() => {
     setTitle(selectedNote?.title || '');
     setContent(selectedNote?.content || '');
   }, [selectedNote]);
 
-  // Réinitialiser la vue quand le widget se ferme
   useEffect(() => {
     if (!isOpen) {
       setView('list');
@@ -68,7 +61,6 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
   };
 
   const getPreview = (content: string) => {
-    // Décrypter le HTML pour récupérer seulement le texte
     const div = document.createElement('div');
     div.innerHTML = content;
     const textContent = div.textContent || div.innerText || '';
@@ -81,31 +73,23 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
     const diffInHours = diffInMs / (1000 * 60 * 60);
     const diffInDays = diffInHours / 24;
 
-    if (diffInHours < 24) {
-      return 'Aujourd\'hui';
-    } else if (diffInHours < 48) {
-      return 'Hier';
-    } else if (diffInDays < 7) {
-      return '7 jours précédents';
-    } else if (diffInDays < 30) {
-      return '1 mois précédent';
-    } else {
-      return 'Plus ancien';
-    }
+    if (diffInHours < 24) return "Aujourd'hui";
+    if (diffInHours < 48) return 'Hier';
+    if (diffInDays < 7) return '7 jours précédents';
+    if (diffInDays < 30) return '1 mois précédent';
+    return 'Plus ancien';
   };
 
-  // Fonction helper pour grouper les notes par section temporelle
   const groupNotesByTime = (notes: Note[]) => {
+    const sortedNotes = [...notes].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
     const grouped: Record<string, Note[]> = {};
-    
-    notes.forEach(note => {
+    sortedNotes.forEach(note => {
       const section = getTimeSection(note.updatedAt);
       if (!grouped[section]) {
         grouped[section] = [];
       }
       grouped[section].push(note);
     });
-
     return grouped;
   };
 
@@ -117,7 +101,6 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
         setSelectedNote(newNote);
         setTitle('');
         setContent('');
-        setIsReadMode(false); // Entrer directement en mode édition
         setView('editor');
       } catch (error) {
         console.error('Erreur lors de la création de la note:', error);
@@ -134,7 +117,6 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
       setTitle(note.title);
       setContent(note.content);
       setView('editor');
-      setIsReadMode(true);
       setIsTransitioning(false);
     }, 150);
   };
@@ -183,18 +165,19 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
     }, 150);
   };
 
-  // Auto-save après 1 seconde d'inactivité
   useEffect(() => {
     if (view === 'editor') {
       const timer = setTimeout(() => {
-        if (title.trim() || content.trim()) {
+        if (selectedNote && (title.trim() !== selectedNote.title || content.trim() !== selectedNote.content)) {
           handleSaveNote();
         }
       }, 1000);
 
       return () => clearTimeout(timer);
     }
-  }, [title, content, view]);
+  }, [title, content, view, selectedNote]);
+
+  const groupedNotes = groupNotesByTime(notes);
 
   return (
     <DockAnimation isOpen={isOpen} originPoint={originPoint}>
@@ -214,12 +197,12 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
                   <ArrowLeft className="w-4 h-4" />
                 </button>
               )}
-              <FileText className="w-4 h-4 text-gray-600" />
               <div className={`transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-                {view === 'list' ? (
-                  <h3 className="text-gray-600 text-sm font-medium">Notes</h3>
-                ) : (
-                  <h3 className="text-gray-600 text-sm font-medium truncate max-w-[150px]">{selectedNote?.title || 'Nouvelle note'}</h3>
+                {view === 'list' && (
+                  <>
+                    <FileText className="w-4 h-4 text-gray-600 inline-block mr-2" />
+                    <h3 className="text-gray-600 text-sm font-medium inline-block">Notes</h3>
+                  </>
                 )}
               </div>
             </div>
@@ -250,120 +233,84 @@ export function QuickNotesWidget({ isOpen, onClose, originPoint }: QuickNotesWid
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>
-                  <button
-                    onClick={() => setIsReadMode(!isReadMode)}
-                    className="w-8 h-8 p-0 rounded-full hover:bg-white/15 flex items-center justify-center text-gray-600 hover:text-gray-700"
-                  >
-                    <Edit3 className="w-4 h-4" />
-                  </button>
                 </>
               )}
-              <button
-                onClick={onClose}
-                className="w-8 h-8 p-0 rounded-full hover:bg-white/15 flex items-center justify-center text-gray-600 hover:text-gray-700"
-                title="Fermer"
-              >
-                <X className="w-4 h-4" />
-              </button>
             </div>
           </div>
-          {/* Content */}
-          <div className="flex-1 overflow-y-auto min-h-0">
-            <div className={`h-full transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
-              {view === 'list' && (
-                <div className="p-4 h-full">
-                  {loading ? (
-                    <div className="flex items-center justify-center h-full text-gray-500">
-                      Chargement...
-                    </div>
-                  ) : notes.length === 0 ? (
-                    <div className="text-center h-full flex flex-col items-center justify-center text-gray-400">
-                      <FileText className="w-8 h-8 mx-auto mb-3" />
-                      <p className="text-sm mb-3">Aucune note</p>
-                      <Button
-                        size="sm"
-                        onClick={handleCreateNote}
-                        className="text-gray-500 hover:text-gray-600 hover:bg-white/20"
-                      >
-                        Créer une note
-                      </Button>
-                    </div>
-                  ) : (
-                    <ul className="space-y-4">
-                      {Object.entries(groupNotesByTime(notes)).map(([section, notesInSection]) => (
-                        <li key={section}>
-                          <h4 className="text-gray-400 text-xs font-medium uppercase tracking-wide text-left mb-2">
-                            {section}
-                          </h4>
-                          <ul className="space-y-2">
-                            {notesInSection.map(note => (
-                               <li key={note.id} onClick={() => handleSelectNote(note)} className="cursor-pointer">
-                                <div className="p-3 rounded-lg bg-white/10 hover:bg-white/15 transition-colors">
-                                  <h4 className="text-gray-700 font-medium text-sm truncate text-left mb-1">
-                                    {note.title || 'Note sans titre'}
-                                  </h4>
-                                  <p className="text-gray-500 text-xs line-clamp-1 mb-2 text-left">
-                                    {getPreview(note.content)}
-                                  </p>
-                                  <div className="flex items-center justify-between">
-                                    <span className="text-gray-400 text-xs">
-                                      {formatDate(note.updatedAt)}
-                                    </span>
-                                    {note.isShared && <NoteCollaborators collaborators={note.collaborators || []} />}
-                                    <ChevronRight className="w-3 h-3 text-gray-400" />
-                                  </div>
-                                </div>
-                               </li>
-                            ))}
-                          </ul>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                </div>
-              )}
-              {view === 'editor' && selectedNote && (
-                <div className="h-full flex flex-col">
-                  {isReadMode ? (
-                    <h1 className="text-gray-700 font-medium text-lg text-left px-6 pt-4 pb-2 flex-shrink-0 truncate">
-                      {title || 'Note sans titre'}
-                    </h1>
-                  ) : (
-                    <div className="flex-shrink-0 px-6 pt-4 pb-2">
-                      <Input
-                        value={title}
-                        onChange={(e) => setTitle(e.target.value)}
-                        placeholder="Titre de la note"
-                        className="bg-transparent border-none text-lg font-medium text-gray-700 placeholder:text-gray-400 focus:ring-0 p-0"
-                      />
-                    </div>
-                  )}
-                  <div className="flex-1 overflow-y-auto px-6 pb-6 min-h-0">
-                    {isReadMode ? (
-                      <div 
-                        className="prose prose-invert max-w-none text-gray-600 leading-relaxed" 
-                        style={{ fontSize: '12px', lineHeight: '1.5', textAlign: 'left' }}
-                        dangerouslySetInnerHTML={{ __html: content }} 
-                      />
-                    ) : (
-                      <RichTextEditor
-                        value={content}
-                        onChange={setContent}
-                        placeholder="Commencez à écrire..."
-                      />
-                    )}
+
+          {/* Body */}
+          <div className="flex-grow overflow-hidden relative">
+            {view === 'list' ? (
+              <div className={`flex-grow overflow-y-auto p-4 transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                {loading ? (
+                  <div className="space-y-4">
+                    {[...Array(3)].map((_, i) => (
+                      <div key={i} className="space-y-2">
+                        <div className="h-4 bg-gray-200/80 rounded w-1/4" />
+                        <div className="h-10 bg-gray-200/80 rounded" />
+                        <div className="h-10 bg-gray-200/80 rounded" />
+                      </div>
+                    ))}
                   </div>
-                  {isReadMode && (
-                    <div className="text-gray-400 italic text-sm px-6 pb-4 text-center">
-                      Cliquez sur <Edit3 className="inline w-3 h-3" /> pour modifier.
+                ) : (
+                  Object.entries(groupedNotes).map(([section, notesInSection]) => (
+                    <div key={section} className="mb-4">
+                      <h4 className="text-xs text-gray-500 font-semibold mb-2 px-2">{section}</h4>
+                      <div className="space-y-1">
+                        {notesInSection.map(note => (
+                          <div
+                            key={note.id}
+                            onClick={() => handleSelectNote(note)}
+                            className="p-2 rounded-lg hover:bg-white/25 cursor-pointer transition-colors duration-200 group"
+                          >
+                            <div className="flex justify-between items-stretch min-h-[50px]">
+                              <div className="flex-1 overflow-hidden">
+                                <h5 className="text-sm font-medium text-gray-700 truncate group-hover:text-gray-800 pr-2 text-left">
+                                  {note.title || 'Note sans titre'}
+                                </h5>
+                                <p className="text-xs text-gray-500 truncate mt-1 text-left">
+                                  {getPreview(note.content)}
+                                </p>
+                              </div>
+                              <div className="flex flex-col justify-between items-end ml-2 flex-shrink-0">
+                                {(note.collaborators && note.collaborators.length > 1) ? (
+                                  <NoteCollaborators collaborators={note.collaborators} size="sm" />
+                                ) : <div />}
+                                <div className="flex items-center">
+                                  <span className="text-[10px] text-gray-400 mr-1">{formatDate(note.updatedAt)}</span>
+                                  <ChevronRight className="w-3 h-3 text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
                     </div>
-                  )}
+                  ))
+                )}
+              </div>
+            ) : (
+              <div className={`absolute inset-0 p-4 flex flex-col transition-opacity duration-150 ${isTransitioning ? 'opacity-0' : 'opacity-100'}`}>
+                <div className="flex-shrink-0 mb-2 border border-amber-200 rounded-lg bg-amber-50/30 p-3">
+                  <input
+                    type="text"
+                    placeholder="Titre de la note"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full bg-transparent text-base font-medium text-gray-800 placeholder-gray-400 focus:outline-none"
+                  />
                 </div>
-              )}
-            </div>
+                <div className="flex-1 min-h-0 border border-amber-200 rounded-lg overflow-hidden">
+                  <RichTextEditor
+                    value={content}
+                    onChange={setContent}
+                  />
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
     </DockAnimation>
   );
-} 
+}

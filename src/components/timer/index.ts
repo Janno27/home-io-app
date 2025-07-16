@@ -1,2 +1,3 @@
-export { Timer } from './Timer';
-export type { TimerState, TimerSettings } from './types'; 
+export * from './Timer';
+export * from './MiniTimer';
+export * from './types'; 

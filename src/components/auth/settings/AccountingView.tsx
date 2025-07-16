@@ -209,19 +209,6 @@ export function AccountingView({ onBack }: AccountingViewProps) {
             
             {/* CTAs avec animation de tooltip */}
             <div className="flex items-center space-x-1">
-              {/* CTA Sous-catégorie */}
-              <div className="relative group">
-                <button 
-                  onClick={openCreateSubCategoryForm}
-                  className="text-xs text-gray-400 hover:text-gray-600 p-1.5 rounded hover:bg-gray-50 transition-all duration-200"
-                >
-                  <Plus className="w-3.5 h-3.5" />
-                </button>
-                <div className="absolute bottom-full right-0 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap">
-                  Sous-catégorie
-                </div>
-              </div>
-              
               {/* CTA Catégorie */}
               <div className="relative group">
                 <button 
@@ -230,8 +217,20 @@ export function AccountingView({ onBack }: AccountingViewProps) {
                 >
                   <FolderPlus className="w-3.5 h-3.5" />
                 </button>
-                <div className="absolute bottom-full right-0 mb-1 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transform translate-y-1 group-hover:translate-y-0 transition-all duration-200 pointer-events-none whitespace-nowrap">
+                <div className="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-50">
                   Catégorie
+                </div>
+              </div>
+              {/* CTA Sous-catégorie */}
+              <div className="relative group">
+                <button 
+                  onClick={openCreateSubCategoryForm}
+                  className="text-xs text-gray-400 hover:text-gray-600 p-1.5 rounded hover:bg-gray-50 transition-all duration-200"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                </button>
+                <div className="absolute right-full top-1/2 transform -translate-y-1/2 mr-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 group-hover:translate-x-0 translate-x-1 transition-all duration-200 pointer-events-none whitespace-nowrap z-50">
+                  Sous-catégorie
                 </div>
               </div>
             </div>

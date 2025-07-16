@@ -512,6 +512,108 @@ export function RichTextEditor({
 
   // Gestionnaire de raccourcis clavier
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLDivElement>) => {
+    // Gestion de la hiérarchie des listes avec Tab et Shift+Tab
+    if (e.key === 'Tab') {
+      const selection = window.getSelection();
+      if (selection && selection.rangeCount > 0) {
+        const range = selection.getRangeAt(0);
+        const containerElement = range.commonAncestorContainer.nodeType === Node.TEXT_NODE 
+          ? range.commonAncestorContainer.parentElement 
+          : range.commonAncestorContainer as Element;
+        const listItem = containerElement?.closest('li');
+        
+        if (listItem) {
+          e.preventDefault();
+          
+          if (e.shiftKey) {
+            // Shift+Tab : remonter d'un niveau (outdent)
+            const parentList = listItem.parentElement;
+            const grandParentItem = parentList?.parentElement?.closest('li');
+            
+            if (grandParentItem) {
+              const grandParentList = grandParentItem.parentElement;
+              const nextSibling = listItem.nextElementSibling;
+              
+              // Déplacer l'élément au niveau supérieur
+              grandParentList?.insertBefore(listItem, grandParentItem.nextSibling);
+              
+              // Si l'élément avait des frères suivants, les déplacer dans une sous-liste
+              if (nextSibling && parentList) {
+                const newSubList = document.createElement(parentList.tagName.toLowerCase());
+                newSubList.style.marginLeft = '1.5rem';
+                newSubList.style.marginTop = '0.25rem';
+                newSubList.style.marginBottom = '0.25rem';
+                
+                while (nextSibling) {
+                  const next = nextSibling.nextElementSibling;
+                  newSubList.appendChild(nextSibling);
+                  if (!next) break;
+                }
+                
+                if (newSubList.children.length > 0) {
+                  listItem.appendChild(newSubList);
+                }
+              }
+              
+              // Supprimer la liste parent si elle est vide
+              if (parentList && parentList.children.length === 0) {
+                parentList.remove();
+              }
+              
+              // Placer le curseur
+              const newRange = document.createRange();
+              newRange.setStart(listItem, 0);
+              newRange.setEnd(listItem, 0);
+              selection.removeAllRanges();
+              selection.addRange(newRange);
+            }
+          } else {
+            // Tab : descendre d'un niveau (indent)
+            const previousSibling = listItem.previousElementSibling as HTMLLIElement;
+            
+            if (previousSibling) {
+              const parentList = listItem.parentElement;
+              const listType = parentList?.tagName.toLowerCase();
+              
+              // Chercher s'il y a déjà une sous-liste dans l'élément précédent
+              let subList = previousSibling.querySelector(':scope > ul, :scope > ol') as HTMLElement;
+              
+              if (!subList) {
+                // Créer une nouvelle sous-liste
+                subList = document.createElement(listType || 'ul');
+                subList.style.marginLeft = '1.5rem';
+                subList.style.marginTop = '0.25rem';
+                subList.style.marginBottom = '0.25rem';
+                previousSibling.appendChild(subList);
+              }
+              
+              // Déplacer l'élément dans la sous-liste
+              subList.appendChild(listItem);
+              
+              // Appliquer les styles appropriés
+              const liElements = subList.querySelectorAll('li');
+              liElements.forEach(li => {
+                (li as HTMLElement).style.listStyleType = listType === 'ol' ? 'decimal' : 'disc';
+                (li as HTMLElement).style.color = '#374151';
+                (li as HTMLElement).style.lineHeight = '1.5';
+                (li as HTMLElement).style.marginBottom = '0.25rem';
+              });
+              
+              // Placer le curseur
+              const newRange = document.createRange();
+              newRange.setStart(listItem, 0);
+              newRange.setEnd(listItem, 0);
+              selection.removeAllRanges();
+              selection.addRange(newRange);
+            }
+          }
+          
+          updateContent();
+          return;
+        }
+      }
+    }
+    
     // Gestion spéciale de la touche Entrée dans les checkboxes
     if (e.key === 'Enter') {
     const selection = window.getSelection();
@@ -759,11 +861,11 @@ export function RichTextEditor({
   return (
     <div className={`flex flex-col h-full ${className}`}>
       {/* Toolbar - uniquement en mode édition */}
-      <div className="flex-shrink-0 p-2 border-b border-white/10 bg-white/5 rounded-t-lg backdrop-blur-sm">
+      <div className="flex-shrink-0 p-2 border-b border-amber-200 bg-amber-50/50 rounded-t-lg backdrop-blur-sm">
           <div className="flex items-center space-x-1">
             {toolbarButtons.map((button, index) => {
               if (button.type === 'divider') {
-                return <div key={index} className="h-6 w-px bg-white/20 mx-1"></div>;
+                return <div key={index} className="h-6 w-px bg-amber-300/40 mx-1"></div>;
               }
               const IconComponent = button.icon;
               const isActive = button.format && activeFormats.has(button.format);
@@ -774,14 +876,14 @@ export function RichTextEditor({
                   size="sm"
                   onClick={button.action}
                   onMouseDown={(e) => e.preventDefault()}
-                  className={`h-8 w-8 p-0 flex-shrink-0 transition-colors ${
+                  className={`h-7 w-7 p-0 flex-shrink-0 transition-colors ${
                     isActive 
                       ? 'bg-blue-500/20 text-blue-600 hover:bg-blue-500/30' 
-                      : 'hover:bg-white/20 text-gray-500 hover:text-gray-700'
+                      : 'hover:bg-amber-100/50 text-gray-500 hover:text-gray-700'
                   }`}
                   title={button.title}
                 >
-                  <IconComponent className="w-4 h-4" />
+                  <IconComponent className="w-3.5 h-3.5" />
                 </Button>
               );
             })}
@@ -789,19 +891,18 @@ export function RichTextEditor({
         </div>
 
       {/* Zone d'édition WYSIWYG */}
-      <div className="flex-1 relative bg-white/5 rounded-b-lg overflow-hidden">
-            <div
-              ref={editorRef}
+      <div className="flex-1 relative bg-amber-50 rounded-b-lg">
+        <div
+          ref={editorRef}
           contentEditable={true}
-              suppressContentEditableWarning
+          suppressContentEditableWarning
           onInput={handleInput}
           onKeyDown={handleKeyDown}
           onClick={handleEditorClick}
-          className="h-full w-full p-4 focus:outline-none overflow-y-auto text-sm leading-relaxed"
-              style={{ 
+          className="absolute inset-0 p-4 focus:outline-none overflow-y-auto text-xs leading-relaxed rounded-b-lg"
+          style={{ 
             color: '#374151',
-                minHeight: '200px',
-                textAlign: 'left',
+            textAlign: 'left',
             wordWrap: 'break-word',
             overflowWrap: 'break-word',
           }}
@@ -811,11 +912,11 @@ export function RichTextEditor({
         {/* Placeholder quand vide */}
         {!value && (
           <div 
-            className="absolute top-4 left-4 text-gray-400 pointer-events-none text-sm"
+            className="absolute top-4 left-4 text-gray-400 pointer-events-none text-xs"
             style={{ zIndex: 1 }}
           >
-                {placeholder}
-              </div>
+            {placeholder}
+          </div>
         )}
       </div>
     </div>

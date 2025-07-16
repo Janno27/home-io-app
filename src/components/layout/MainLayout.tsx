@@ -20,6 +20,7 @@ import { CalendarWidget } from '@/components/calendar';
 import { DashboardPage } from '@/components/accounting/dashboard';
 import { useWeather } from '@/hooks/useWeather';
 import { WeatherDetail } from '@/components/weather';
+import { Calculator } from '@/components/calculator';
 
 export function MainLayout() {
   const { user, loading } = useAuthContext();
@@ -28,10 +29,12 @@ export function MainLayout() {
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showQuickNotes, setShowQuickNotes] = useState(false);
   const [showTimer, setShowTimer] = useState(false);
+  const [showCalculator, setShowCalculator] = useState(false);
   const [musicActive, setMusicActive] = useState(false);
   const [musicCollapsed, setMusicCollapsed] = useState(false);
   const [notesIconPosition, setNotesIconPosition] = useState<{ x: number; y: number } | undefined>();
   const [timerIconPosition, setTimerIconPosition] = useState<{ x: number; y: number } | undefined>();
+  const [calculatorIconPosition, setCalculatorIconPosition] = useState<{ x: number; y: number } | undefined>();
   const [weatherIconPosition, setWeatherIconPosition] = useState<{ x: number; y: number } | undefined>();
   const [isWeatherDetailOpen, setIsWeatherDetailOpen] = useState(false);
   const { weatherData, loading: weatherLoading, error: weatherError } = useWeather();
@@ -53,6 +56,14 @@ export function MainLayout() {
     } else {
       // Ouverture
       setShowTimer(true);
+    }
+  };
+
+  const handleToggleCalculator = () => {
+    if (showCalculator) {
+      setShowCalculator(false);
+    } else {
+      setShowCalculator(true);
     }
   };
 
@@ -106,12 +117,15 @@ export function MainLayout() {
             onOpenIncomeModal={() => setShowIncomeModal(true)}
             onOpenQuickNotes={handleToggleNotes}
             onOpenTimer={handleToggleTimer}
+            onOpenCalculator={handleToggleCalculator}
             onMusicClick={handleMusicIconClick}
             musicActive={musicActive}
             showQuickNotes={showQuickNotes}
             showTimer={showTimer}
+            showCalculator={showCalculator}
             onGetNotesIconPosition={setNotesIconPosition}
             onGetTimerIconPosition={setTimerIconPosition}
+            onGetCalculatorIconPosition={setCalculatorIconPosition}
             onOpenWeatherDetail={handleOpenWeatherDetail}
             weatherData={weatherData}
             weatherLoading={weatherLoading}
@@ -119,7 +133,7 @@ export function MainLayout() {
           />
           <AnimatedPageTransition currentPage={currentPage}>
             {currentPage === 'home' ? (
-              <Hero />
+              <Hero onOpenTimer={handleToggleTimer} />
             ) : currentPage === 'accounting-table' ? (
               <AccountingTablePage navigateTo={navigateTo} />
             ) : currentPage === 'evolution' ? (
@@ -164,6 +178,12 @@ export function MainLayout() {
         isOpen={showTimer}
         onClose={handleToggleTimer}
         originPoint={timerIconPosition}
+      />
+      
+      <Calculator
+        isOpen={showCalculator}
+        onClose={handleToggleCalculator}
+        originPoint={calculatorIconPosition}
       />
       
       <WeatherDetail

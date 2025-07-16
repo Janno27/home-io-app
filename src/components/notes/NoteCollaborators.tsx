@@ -7,9 +7,15 @@ interface NoteCollaboratorsProps {
   collaborators: NoteCollaborator[];
   onUnshare?: (userId: string) => void;
   canRemove?: boolean;
+  size?: 'sm' | 'md';
 }
 
-export function NoteCollaborators({ collaborators, onUnshare, canRemove = false }: NoteCollaboratorsProps) {
+export function NoteCollaborators({ 
+  collaborators, 
+  onUnshare, 
+  canRemove = false,
+  size = 'md' 
+}: NoteCollaboratorsProps) {
   // const getInitials = (name?: string, email?: string) => {
   //   if (name) {
   //     return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
@@ -34,21 +40,23 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
     return null;
   }
 
-  // Filtrer pour afficher seulement les collaborateurs (pas le créateur)
-  const nonCreatorCollaborators = collaborators.filter(c => !c.is_creator);
-  
-  // Si pas de collaborateurs non-créateurs, ne rien afficher
-  if (nonCreatorCollaborators.length === 0) {
-    return null;
-  }
-
   // Limiter l'affichage à 3 avatars + compteur si plus
   const maxDisplay = 3;
-  const displayCollaborators = nonCreatorCollaborators.slice(0, maxDisplay);
-  const remainingCount = Math.max(0, nonCreatorCollaborators.length - maxDisplay);
+  const displayCollaborators = collaborators.slice(0, maxDisplay);
+  const remainingCount = Math.max(0, collaborators.length - maxDisplay);
+
+  const sizeClasses = {
+    sm: 'h-5 w-5',
+    md: 'h-6 w-6',
+  };
+
+  const iconSizeClasses = {
+    sm: 'h-2.5 w-2.5',
+    md: 'h-3 w-3',
+  }
 
   return (
-    <div className="flex items-center space-x-1">
+    <div className="flex items-center -space-x-2">
       <TooltipProvider>
         {displayCollaborators.map((collaborator, index) => (
           <div key={collaborator.user_id} className="relative group animate-in fade-in duration-300">
@@ -59,19 +67,15 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
                     <img 
                       src={collaborator.avatar_url}
                       alt={getDisplayName(collaborator)}
-                      className={`h-6 w-6 rounded-full border-2 border-white/20 object-cover transition-transform hover:scale-110 ${
-                        index > 0 ? '-ml-2' : ''
-                      }`}
+                      className={`${sizeClasses[size]} rounded-full border-2 border-white/20 object-cover transition-transform hover:scale-110`}
                       style={{ zIndex: displayCollaborators.length - index }}
                     />
                   ) : (
                     <div 
-                      className={`h-6 w-6 rounded-full border-2 border-white/20 bg-gray-200 flex items-center justify-center transition-transform hover:scale-110 ${
-                        index > 0 ? '-ml-2' : ''
-                      }`}
+                      className={`${sizeClasses[size]} rounded-full border-2 border-white/20 bg-gray-200 flex items-center justify-center transition-transform hover:scale-110`}
                       style={{ zIndex: displayCollaborators.length - index }}
                     >
-                      <User className="h-3 w-3 text-gray-500" />
+                      <User className={`${iconSizeClasses[size]} text-gray-500`} />
                     </div>
                   )}
                   
@@ -93,11 +97,11 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
               </TooltipTrigger>
               <TooltipContent 
                 side="bottom" 
-                className="bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 text-xs"
+                className="bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 text-[10px] p-1"
               >
                 <div className="text-center">
-                  <p className="font-medium">{getDisplayName(collaborator)}</p>
-                  <p className="text-gray-500">{getRole(collaborator)}</p>
+                  <p className="font-medium leading-tight">{getDisplayName(collaborator)}</p>
+                  <p className="text-gray-500 leading-tight">{getRole(collaborator)}</p>
                 </div>
               </TooltipContent>
             </Tooltip>
@@ -107,19 +111,19 @@ export function NoteCollaborators({ collaborators, onUnshare, canRemove = false 
         {remainingCount > 0 && (
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="h-6 w-6 -ml-2 rounded-full bg-gray-200 border-2 border-white/20 flex items-center justify-center text-xs text-gray-500 font-medium">
+              <div className={`${sizeClasses[size]} -ml-2 rounded-full bg-gray-200 border-2 border-white/20 flex items-center justify-center text-xs text-gray-500 font-medium`}>
                 +{remainingCount}
               </div>
             </TooltipTrigger>
             <TooltipContent 
               side="bottom" 
-              className="bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 text-xs"
+              className="bg-white/15 backdrop-blur-sm border border-white/20 text-gray-700 text-xs p-1"
             >
               <div className="space-y-1">
-                {nonCreatorCollaborators.slice(maxDisplay).map((collaborator) => (
+                {collaborators.slice(maxDisplay).map((collaborator) => (
                   <div key={collaborator.user_id} className="text-center">
-                    <p className="font-medium">{getDisplayName(collaborator)}</p>
-                    <p className="text-gray-500">{getRole(collaborator)}</p>
+                    <p className="font-medium leading-tight">{getDisplayName(collaborator)}</p>
+                    <p className="text-gray-500 leading-tight">{getRole(collaborator)}</p>
                   </div>
                 ))}
               </div>

@@ -1,6 +1,7 @@
-export { MainView } from './MainView';
-export { OrganizationsView } from './OrganizationsView';
-export { AccountingView } from './AccountingView';
+export * from './MainView';
+export * from './OrganizationsView';
+export * from './AccountingView';
+export * from './AccountView';
 export { CategoryForm } from './CategoryForm';
 export { SubCategoryForm } from './SubCategoryForm';
 export { OrganizationForm } from './OrganizationForm';
