@@ -26,9 +26,12 @@ exports.handler = async (event, context) => {
   }
 
   try {
-    const { action, code, refresh_token } = JSON.parse(event.body || '{}');
+    const { action, code, refresh_token, redirect_uri } = JSON.parse(event.body || '{}');
 
     if (action === 'exchange_code') {
+      // Debug pour vérifier l'URI
+      console.log('Redirect URI used:', redirect_uri || 'http://localhost:5173/callback');
+      
       // Échanger le code d'autorisation contre des tokens
       const tokenResponse = await fetch('https://accounts.spotify.com/api/token', {
         method: 'POST',
@@ -39,7 +42,7 @@ exports.handler = async (event, context) => {
         body: new URLSearchParams({
           grant_type: 'authorization_code',
           code: code,
-          redirect_uri: event.headers.origin ? `${event.headers.origin}/callback` : 'http://localhost:5173/callback',
+          redirect_uri: redirect_uri || 'http://localhost:5173/callback',
         }),
       });
 

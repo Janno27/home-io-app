@@ -84,10 +84,15 @@ export function useSpotify() {
   const handleCallback = async (code: string) => {
     try {
       setLoading(true);
+      const redirectUri = `${window.location.origin}/callback`;
       const response = await fetch('/.netlify/functions/spotify-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'exchange_code', code }),
+        body: JSON.stringify({ 
+          action: 'exchange_code', 
+          code,
+          redirect_uri: redirectUri 
+        }),
       });
 
       const tokens = await response.json();
