@@ -11,6 +11,7 @@ import { TransactionModal } from '@/components/accounting/TransactionModal';
 import { QuickNotesWidget } from '@/components/notes';
 import { Timer } from '@/components/timer';
 import { MusicWidget } from '@/components/music';
+import { SpotifyCallback } from '@/components/music/SpotifyCallback';
 import { useState } from 'react';
 import { AccountingTable } from '@/components/accounting/AccountingTable';
 import { AccountingTableSkeleton } from '@/components/accounting/AccountingTableSkeleton';
@@ -25,6 +26,11 @@ import { Calculator } from '@/components/calculator';
 export function MainLayout() {
   const { user, loading } = useAuthContext();
   const { currentPage, navigateTo } = useNavigation();
+  
+  // Gérer le callback Spotify
+  if (window.location.pathname === '/callback') {
+    return <SpotifyCallback />;
+  }
   const [showExpenseModal, setShowExpenseModal] = useState(false);
   const [showIncomeModal, setShowIncomeModal] = useState(false);
   const [showQuickNotes, setShowQuickNotes] = useState(false);
