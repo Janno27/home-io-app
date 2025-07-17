@@ -8,6 +8,11 @@ export function SpotifyCallback() {
     const urlParams = new URLSearchParams(window.location.search);
     const code = urlParams.get('code');
     const errorParam = urlParams.get('error');
+    
+    console.log('Callback page loaded');
+    console.log('URL:', window.location.href);
+    console.log('Code:', code);
+    console.log('Error:', errorParam);
 
     if (errorParam) {
       console.error('Spotify authentication error:', errorParam);
@@ -16,8 +21,10 @@ export function SpotifyCallback() {
     }
 
     if (code) {
+      console.log('Found authorization code, starting exchange...');
       handleCallback(code);
     } else {
+      console.log('No code found, redirecting to home');
       // Pas de code, rediriger vers l'accueil
       window.location.href = '/';
     }

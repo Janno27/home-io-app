@@ -84,20 +84,33 @@ export function useSpotify() {
   const handleCallback = async (code: string) => {
     try {
       setLoading(true);
-      const redirectUri = `${window.location.origin}/callback`;
+      setError(null);
+      
+      console.log('Starting Spotify callback with code:', code);
+      
       const response = await fetch('/.netlify/functions/spotify-auth', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'exchange_code', 
-          code,
-          redirect_uri: redirectUri 
-        }),
+        body: JSON.stringify({ action: 'exchange_code', code }),
       });
 
-      const tokens = await response.json();
-      if (!response.ok) throw new Error(tokens.error);
+      console.log('Response status:', response.status);
+      
+      const responseText = await response.text();
+      console.log('Response text:', responseText);
+      
+      let tokens;
+      try {
+        tokens = JSON.parse(responseText);
+      } catch (parseError) {
+        throw new Error(`Invalid JSON response: ${responseText}`);
+      }
+      
+      if (!response.ok) {
+        throw new Error(tokens.error || `HTTP ${response.status}: ${responseText}`);
+      }
 
+      console.log('Tokens received successfully');
       storeTokens(tokens);
       setIsAuthenticated(true);
       await fetchUserProfile();
@@ -105,7 +118,14 @@ export function useSpotify() {
       // Rediriger vers la page principale
       window.location.href = '/';
     } catch (error) {
-      setError(error instanceof Error ? error.message : 'Authentication failed');
+      console.error('Callback error:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Authentication failed';
+      setError(errorMessage);
+      
+      // Rediriger vers l'accueil après 3 secondes en cas d'erreur
+      setTimeout(() => {
+        window.location.href = '/';
+      }, 3000);
     } finally {
       setLoading(false);
     }
