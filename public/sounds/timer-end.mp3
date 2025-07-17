@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+<meta charset="utf-8">
+
+<script src='/js/scripts.js?id=9' defer></script>
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<link rel="preload" href="/css/style.css?v=9" as="style">
+<link rel="stylesheet" href="/css/style.css?v=9">
+<noscript><link rel="stylesheet" href="/css/style.css?v=9"></noscript>
+
+<link rel="preload" as="image" href="/images/logos/logo-en-900x90-d.webp?v=9" type="image/webp">
+<link rel="preload" as="image" href="/images/logos/logo-en-1800x180-d.webp?v=9" type="image/webp">
+
+<title>Free Sound Effects Library</title>
+<meta name='title' content="Free Sound Effects Library">
+<meta name='description' content="Free and royalty-free sound library for your commercial or personal projects. Sound effects and Soundscapes in WAV, MP3... Listen, Download!">
+<meta name='keywords' content="free, foley, sound, effect, nature sounds, sound effects, royalty-free sounds, free sound effects, video game sounds, movie foley sounds">
+<meta name='author' content='Joseph SARDIN'>
+
+<link rel='canonical' href="https://bigsoundbank.com/mp3-128/2659.mp3">
+
+<meta property='fb:admins' content='497240946988998'>
+
+<link rel='alternate' hreflang='en' href='https://bigsoundbank.com/mp3-128/2659.mp3'>
+<link rel='alternate' hreflang='fr' href='https://lasonotheque.org/mp3-128/2659.mp3'>
+<link rel='alternate' hreflang='x-default' href='https://bigsoundbank.com/mp3-128/2659.mp3'>
+
+<meta property='og:site_name' content='BigSoundBank'>
+<meta property='og:title' content="Free Sound Effects Library - BigSoundBank">
+<meta property='og:type' content='website'>
+<meta property='og:description' content="Free and royalty-free sound library for your commercial or personal projects. Sound effects and Soundscapes in WAV, MP3... Listen, Download!">
+<meta property='og:url' content="https://bigsoundbank.com/mp3-128/2659.mp3">
+<meta property='og:image' content='https://bigsoundbank.com/images/logo-bsb-carre-250.png'>
+
+<link rel='icon' href='/images/favicon_192.png'>
+<link rel='icon' type='image/gif' href='/images/favicon_192.gif'>
+<link rel='shortcut icon' type='image/x-icon' href='https://bigsoundbank.com/images/favicon.ico'>
+
+<meta name='msapplication-TileImage' content='https://bigsoundbank.com/images/logo-bsb-carre-144.png'>
+<meta name='application-name' content='BigSoundBank'>
+
+<link href='https://bigsoundbank.com/images/logo-bsb-carre-250.png' rel='image_src'>
+
+<meta name='mobile-web-app-capable' content='yes'>
+<link rel='icon' sizes='114x114' href='https://bigsoundbank.com/images/logo-bsb-carre-114.png'>
+<link rel='apple-touch-icon' sizes='114x114' href='https://bigsoundbank.com/images/logo-bsb-carre-114.png'>
+
+<link type='text/plain' rel='author' href='https://bigsoundbank.com/humans.txt'>
+<link type='text/plain' rel='security' href='https://bigsoundbank.com/security.txt'>
+
+<meta name='google-site-verification' content='c-DpQKZXv3qQAxqdjOB24cxuSZaSzlQJlaESoRB4njY'>
+</head>
+<body>
+<noscript>Your browser does not support JavaScript!</noscript>
+
+<header>
+<div class='mini_don d'><a href='/donation.html'><img style='padding-top:3px;' src='/images/dons/don-en-122x56.webp' srcset='/images/dons/don-en-122x56.webp 1x, /images/dons/don-en-244x112.webp 2x' alt='Make a donation' width='122' height='56' loading='lazy'>
+</a></div>
+
+<div class='cc d'>
+<a href='/right.html'>
+<img alt='Free and royalty-free sound library for your commercial or personal projects.' title='More informations' style='border:0; background-color: transparent;' src='/images/gratuit_en.png' srcset='/images/gratuit_en.png 1x, /images/gratuit_en_hd.png 2x' width='337' height='32' loading='lazy' fetchpriority='high'>
+</a>
+</div><div class='cadre element-sticky' style='line-height:0; background-color: #ffffff !important;'>
+<a href='/' title='Home'>
+
+<div class='d'>
+<img alt="Logo of the website BigSoundBank.com" src="/images/logos/logo-en-900x90-d.webp?v=9" srcset='/images/logos/logo-en-900x90-d.webp?v=9 1x, /images/logos/logo-en-1800x180-d.webp?v=9 2x' width="900" height="90" loading='eager' fetchpriority='high'>
+</div>
+<div class='m'>
+<img alt="Logo of the website BigSoundBank.com" src="/images/logos/logo-en-320x77-m.webp?v=9" srcset='/images/logos/logo-en-320x77-m.webp?v=9 1x, /images/logos/logo-en-640x154-m.webp?v=9 2x' width="320" height="77" loading='eager' fetchpriority='high'>
+</div>
+
+</a>
+<div class='degrade'><form class='searchform1' action='https://bigsoundbank.com/search' id='mot' name='mot' method='GET'>
+<div class='menu d' style='float:left; margin-top:7px;'><nav class='menu'><ul><li style='font-weight: bold;'><a href='#' id='lienAfficher'>Menu ⏷</a></li><li><a href='/categories.html'>Categories</a></li><li><a href='/games/'>Sound games</a></li><li><a href='/museumofsounds/'>Museum of Lost Sounds</a></li><li><a href='/shop/'>Shop</a></li><li><a href='/atmosphere/'>Atmosphere</a></li><li><a href='/search'>All sounds</a></li></ul></nav></div>
+<div class='menu m' style='float:left; margin-top:1px;'><a class='navbar-toggle' id='toggleMenu'>
+    <img alt='Menu' src='/images/menu-80x80.webp' width='40' height='40'>
+    </a><script>
+    document.getElementById('toggleMenu').addEventListener('click', function() {
+        asideswipe();
+    });
+</script>
+</div>
+<div class='menu'>
+<input name='q' type='search' placeholder='Search sounds&hellip;' value="" class='haut_q q' aria-label='Enter your search as keywords' title='Enter your search as keywords'><input type='submit' value='&#x1F50E;' class='haut_v' aria-label='OK' aria-pressed='false'></div>
+</form></div>
+</div>
+<div id="aside" class="m menu" style="float:left; display:none; left:20px; position: absolute; z-index: 2; margin-top:0;"><nav class='menu' style='margin-top:0;'><ul>
+<li><a href='/about.html'>About</a></li>
+<li><a href='/search'>All sounds</a></li>
+<li><a href='/categories.html'>Categories</a></li>
+<li><a href='/advanced-search.html'>Advanced search</a></li>
+<li><a href='/shop/'>Shop</a></li>
+<li><a href='/museumofsounds/'>Museum of Lost Sounds</a></li>
+<li><a href='/atmosphere/'>Atmosphere</a></li>
+<li><a href='/bd/'>Comic: "1.65 µHz"</a></li>
+<li><a href='/games/' style='color:var(--couleurRed);text-shadow: -1px 0 white, 0 1px white, 1px 0 white, 0 -1px white;font-weight:bold;'>Sound games</a></li>
+<li><a href='/articles/'>Articles</a></li>
+<li><a href='/links.html'>Useful links</a></li>
+<li><a href='/blog/'>Blog</a></li>
+<li class='reseauxSociaux'><a rel='nofollow noopener' href='https://www.facebook.com/BigSoundBank' title='Facebook page' target='_blank'><img src='/images/reseauxSociaux/facebook-80x80.webp' alt='Facebook page' loading='lazy'></a><a rel='nofollow noopener' href='https://www.instagram.com/bigsoundbank/' title='Instagram page' target='_blank'><img src='/images/reseauxSociaux/instagram-80x80.webp' alt='Instagram page' loading='lazy'></a><a rel='nofollow noopener' href='https://www.youtube.com/channel/UCPyvLhPQqCckNNkwxt8k0fg' title='Youtube page' target='_blank'><img src='/images/reseauxSociaux/youtube-80x80.webp' alt='Youtube page' loading='lazy'></a></li>
+</ul></nav></div>
+
+</header>
+
+<div id='zoneSousMenu'></div><script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const lien = document.getElementById('lienAfficher');
+    const zone = document.getElementById('zoneSousMenu');
+
+    const contenuHTML = `<div class='styleSousMenu' style='float: left; display: block; position: fixed; z-index: 2; margin-top: 0px; width: 75%;'><nav class='styleMenu' style='margin-top:0;'>
+<ul>
+<li><strong>Free Sound Library</strong></li>
+<li><a href='/search'>All sounds</a></li>
+<li><a href='/categories.html'>Categories</a></li>
+<li><a href='/advanced-search.html'>Advanced search</a></li>
+</ul>
+<ul>
+<li><strong>And also</strong></li>
+<li><a href='/shop/'>Shop</a></li>
+<li><a href='/games/'>Sound games</a></li>
+<li><a href='/bd/'>Comic: "1.65 µHz"</a></li>
+<li><a href='/dossiers/techniques-bruitage-f112.html'>Labo du Bruiteur</a></li>
+<li><a href='/museumofsounds/'>Museum of Lost Sounds</a></li>
+<li><a href='/atmosphere/'>Atmosphere</a></li>
+<li><a href='/articles/'>Articles</a></li>
+<li><a href='/blog/'>Blog</a></li>
+</ul><ul>
+<li><strong>BigSoundBank</strong></li>
+<li><a href='/about.html'>About</a></li>
+<li><a href='/donation.html'>Make donation</a></li>
+<li><a href='/links.html'>Useful links</a></li>
+<li><a href='/contact.html'>Contact me</a></li>
+</ul>
+</nav></div>`;
+
+    let visible = false;
+
+    lien.addEventListener('click', function(e) {
+      e.preventDefault();
+      if (!visible) {
+        zone.innerHTML = contenuHTML;
+        lien.textContent = 'Menu ⏶';
+        visible = true;
+      } else {
+        zone.innerHTML = ``;
+        lien.textContent = 'Menu ⏷';
+        visible = false;
+      }
+    });
+  });
+</script>
+<script>
+  window.addEventListener('DOMContentLoaded', () => {
+    const header = document.querySelector('header');
+    const sticky = document.querySelector('.element-sticky');
+
+    const updateStickyTop = () => {
+      const headerHeight = header.offsetHeight;
+      sticky.style.top = `${headerHeight}px`;
+    };
+
+    updateStickyTop();
+    window.addEventListener('resize', updateStickyTop);
+  });
+</script>
+
+<main><meta name='robots' content='noindex'><div class='cadre error md'>
+<h1 style='text-align: center;'>Dang! Error 404</h1>
+<p style='text-align: center;'>It seems that this page has been moved, or does not exist, or no longer…</p><p style='text-align: center;'><img width='300' height='300' src='/errors/erreur.webp' alt="Un lapin qui mange le câble d'un microphone" loading='lazy'></p></div></main>
+
+
+<footer>
+
+
+<div class="cadre" style=';argin: 20px 0 0 0;padding:10px 0 0 0; clear: both;'>
+
+<div style='text-align:center; margin-bottom: 10px;'>
+<a href='https://lasonotheque.org/' title='Switch to French'>Switch to French</a> - <a rel='dofollow noopener' href='https://www.facebook.com/BigSoundBank' title='Facebook page' target='_blank'>Facebook page</a> - <a rel='dofollow noopener' href='https://www.instagram.com/bigsoundbank/' title='Instagram page' target='_blank'>Instagram page</a> - <a rel='dofollow noopener' href='https://www.youtube.com/channel/UCPyvLhPQqCckNNkwxt8k0fg' title='Youtube page' target='_blank'>Youtube page</a> - <a href='/contact.html'>Contact</a></div>
+
+<div style="text-align:center;font-size:10px;">All files whose download pages mention "Free and Royalty Free" (at the top of the page or in the download box) are made available free of charge and <a href='/droit.html' >freely</a> for all your projects, whether commercial or not, and worldwide.</div>
+
+</div></footer>
+<a id="bas"></a>
+
+<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-0956937040179491" crossorigin="anonymous"></script><script async src="https://fundingchoicesmessages.google.com/i/pub-0956937040179491?ers=1"></script><script>(function() {function signalGooglefcPresent() {if (!window.frames['googlefcPresent']) {if (document.body) {const iframe = document.createElement('iframe'); iframe.style = 'width: 0; height: 0; border: none; z-index: -1000; left: -1000px; top: -1000px;'; iframe.style.display = 'none'; iframe.name = 'googlefcPresent'; document.body.appendChild(iframe);} else {setTimeout(signalGooglefcPresent, 0);}}}signalGooglefcPresent();})();</script>
+<script defer src="https://www.googletagmanager.com/gtag/js?id=G-WLDY19X753"></script>
+    <script>
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){dataLayer.push(arguments);}
+        gtag('js', new Date());
+    
+        gtag('config', 'G-WLDY19X753');
+        gtag('config', 'G-YN8J938QZE');
+    </script>
+
+<script>
+(function() {
+  function checkJqueryUsage() {
+    const jqueryPresent = typeof window.jQuery === 'function';
+
+    function detectJqueryUsage() {
+      const scripts = document.querySelectorAll('script');
+      for (let script of scripts) {
+        const code = script.textContent || '';
+        if (/\$\(.*\)/.test(code) || /jQuery\(.*\)/.test(code)) {
+          return true;
+        }
+      }
+      return false;
+    }
+
+    const jqueryUsed = jqueryPresent && detectJqueryUsage();
+
+    if (jqueryUsed) {
+      const pageKey = 'jquery-reported-' + window.location.href;
+      if (!localStorage.getItem(pageKey)) {
+        fetch('/track-jquery.php', {
+          method: 'POST',
+          headers: {'Content-Type': 'application/json'},
+          body: JSON.stringify({ url: window.location.href })
+        });
+        localStorage.setItem(pageKey, '1');
+      }
+    }
+  }
+
+  function waitForJquery(callback, retries = 10) {
+    if (typeof window.jQuery === 'function') {
+      callback();
+    } else if (retries > 0) {
+      setTimeout(() => waitForJquery(callback, retries - 1), 100);
+    } else {
+      callback();
+    }
+  }
+
+  if (document.readyState === 'complete' || document.readyState === 'interactive') {
+    waitForJquery(checkJqueryUsage);
+  } else {
+    document.addEventListener('DOMContentLoaded', () => waitForJquery(checkJqueryUsage));
+  }
+})();
+</script>
+
+</body>
+</html>

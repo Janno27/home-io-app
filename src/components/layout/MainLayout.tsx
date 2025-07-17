@@ -9,7 +9,7 @@ import { AccountingHero } from './AccountingHero';
 import { AnimatedPageTransition } from '@/components/ui/AnimatedPageTransition';
 import { TransactionModal } from '@/components/accounting/TransactionModal';
 import { QuickNotesWidget } from '@/components/notes';
-import { Timer } from '@/components/timer';
+import { Timer, TimerNotification } from '@/components/timer';
 import { MusicWidget } from '@/components/music';
 import { SpotifyCallback } from '@/components/music/SpotifyCallback';
 import { useState } from 'react';
@@ -22,10 +22,12 @@ import { DashboardPage } from '@/components/accounting/dashboard';
 import { useWeather } from '@/hooks/useWeather';
 import { WeatherDetail } from '@/components/weather';
 import { Calculator } from '@/components/calculator';
+import { useTimerNotification } from '@/hooks/useTimerNotification';
 
 export function MainLayout() {
   const { user, loading } = useAuthContext();
   const { currentPage, navigateTo } = useNavigation();
+  const { showNotification, closeNotification } = useTimerNotification();
   
   // Gérer le callback Spotify
   if (window.location.pathname === '/callback') {
@@ -210,6 +212,12 @@ export function MainLayout() {
 
       {/* Mini calendrier accessible en bas à droite */}
       <CalendarWidget showTrigger={currentPage === 'home'} />
+
+      {/* Notification globale du timer */}
+      <TimerNotification
+        isOpen={showNotification}
+        onClose={closeNotification}
+      />
 
       <Toaster position="top-right" />
     </>

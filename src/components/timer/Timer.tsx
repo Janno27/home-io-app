@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Slider } from '@/components/ui/slider';
 import { DockAnimation } from '@/components/ui/DockAnimation';
 import { useOnClickOutside } from '@/hooks/useOnClickOutside';
-import { toast } from 'sonner';
 
 interface TimerProps {
   isOpen: boolean;
@@ -74,10 +73,7 @@ export function Timer({ isOpen, onClose, originPoint }: TimerProps) {
           } else {
             setTimeLeft(0);
             setIsRunning(false);
-            localStorage.removeItem('timer_endTime');
-            localStorage.removeItem('timer_duration');
-            localStorage.removeItem('timer_timeLeft');
-            toast.success("Le temps est écoulé !");
+            // Le hook useTimerNotification se chargera du nettoyage et des notifications
             if (intervalRef.current) clearInterval(intervalRef.current);
           }
         }

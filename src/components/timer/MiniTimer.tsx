@@ -32,9 +32,7 @@ export function MiniTimer({ onClick }: MiniTimerProps) {
         } else {
           setTimeLeft(null);
           setIsRunning(false);
-          localStorage.removeItem('timer_endTime');
-          localStorage.removeItem('timer_duration');
-          localStorage.removeItem('timer_timeLeft');
+          // Le hook useTimerNotification se charge du nettoyage
         }
       } else {
         setIsRunning(false);
