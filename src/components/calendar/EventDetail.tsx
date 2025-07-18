@@ -63,17 +63,17 @@ export function EventDetail({ event, onBack, onEdit, onDelete }: EventDetailProp
       {/* Content */}
       <div className="flex-1 overflow-y-auto p-6 space-y-6">
         <div>
-          <h2 className="text-xl font-semibold text-gray-700 mb-1 truncate">{event.title}</h2>
-          <p className="text-gray-600 text-sm">{formatLong(start)} — {end.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</p>
+          <h2 className="text-xl font-semibold text-gray-700 mb-1 truncate text-left">{event.title}</h2>
+          <p className="text-gray-600 text-sm text-left">{formatLong(start)} — {end.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}</p>
         </div>
         {event.description && (
-          <div>
+          <div className="text-left">
             <h4 className="text-gray-600 text-sm font-medium mb-1">Description</h4>
             <p className="text-gray-700 whitespace-pre-wrap text-sm">{event.description}</p>
           </div>
         )}
         {(event.user_id || (event.participants && event.participants.length > 0)) && (
-          <div>
+          <div className="text-left">
             <h4 className="text-gray-600 text-sm font-medium mb-2">Participants</h4>
             <div className="flex items-center space-x-2 flex-wrap gap-2">
               {event.user_id && (

@@ -229,13 +229,13 @@ export function CalendarWidget({ showTrigger = true }: CalendarWidgetProps) {
                     <h4 className="text-gray-700 text-[10px] font-semibold uppercase tracking-wide text-left py-1">{section}</h4>
                     <div className="space-y-2 divide-y divide-white/10 max-h-64 overflow-y-auto pr-1">
                       {list.length === 0 ? (
-                        <p className="text-xs text-gray-400 italic pt-2">Aucun évènement</p>
+                        <p className="text-sm text-gray-400 italic pt-2">Aucun évènement</p>
                       ) : (
                         list.map(evt => (
-                          <div key={evt.id} onClick={()=>{setCurrentEvent(evt);setView('detail');}} className="flex items-start pt-2 first:pt-0 rounded-lg bg-white/15 hover:bg-white/25 p-2 cursor-pointer transition-colors">
+                          <div key={evt.id} onClick={()=>{setCurrentEvent(evt);setView('detail');}} className="flex items-start pt-2 first:pt-0 rounded-lg bg-white/15 hover:bg-white/25 p-3 cursor-pointer transition-colors">
                             <div className="flex-1">
                               <div className="flex items-center justify-between">
-                                <span className="text-[10px] text-gray-600 mr-2">{new Date(evt.start_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
+                                <span className="text-xs text-gray-600 mr-2">{new Date(evt.start_at).toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' })}</span>
                                 {(() => {
                                   const uniqueParticipants = Array.from(new Set(evt.participants ?? []));
                                   const displayParticipants = uniqueParticipants.filter(id => id !== evt.user_id).slice(0, 2);
